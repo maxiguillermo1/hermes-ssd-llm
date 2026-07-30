@@ -8,6 +8,7 @@ use crate::errors::{ExitCode, HermesSsdLlmError, Result};
 use crate::launcher::{exec_hermes, resolve_real_hermes};
 use crate::locks::SessionLock;
 use crate::paths::SsdPaths;
+use crate::reset::{print_reset_report, run_reset};
 use crate::APP_NAME;
 
 pub fn launch_ssd_mode(args: &[String]) -> Result<()> {
@@ -44,10 +45,25 @@ fn launch_ssd_mode_inner(args: &[String], quiet: bool) -> Result<()> {
     }
 
     exec_hermes(&real, args, &env)?;
-    Err(HermesSsdLlmError::Other("exec returned unexpectedly".into()))
+    Err(HermesSsdLlmError::Other(
+        "exec returned unexpectedly".into(),
+    ))
 }
 
 pub fn handle_ssd_subcommand(args: &[String]) -> Result<i32> {
+    if args.first().map(|s| s.as_str()) == Some("reset") {
+        let opts = parse_reset_options(&args[1..]);
+        match run_reset(&opts) {
+            Ok(report) => {
+                print_reset_report(&report);
+                return Ok(crate::errors::ExitCode::Success.code());
+            }
+            Err(e) => {
+                eprintln!("{e}");
+                return Ok(e.exit_code().code());
+            }
+        }
+    }
     if args.first().map(|s| s.as_str()) == Some("doctor") {
         let throughput = args.get(1).map(|s| s == "--throughput").unwrap_or(false);
         let report = diagnostics::run_doctor(throughput)?;
@@ -86,6 +102,14 @@ pub fn register_mount(cfg: &mut HermesSsdLlmConfig, mount: &std::path::Path) -> 
     Ok(())
 }
 
+fn parse_reset_options(args: &[String]) -> crate::reset::ResetOptions {
+    crate::reset::ResetOptions {
+        dry_run: args.iter().any(|a| a == "--dry-run"),
+        include_models: args.iter().any(|a| a == "--include-models"),
+        all_managed_data: args.iter().any(|a| a == "--all-managed-data"),
+    }
+}
+
 fn print_ssd_help() {
     println!(
         r#"Hermes SSD LLM mode
@@ -94,6 +118,10 @@ Usage:
   hermes ssd                  Launch Hermes with SSD-backed storage
   hermes ssd doctor           Show diagnostics
   hermes ssd doctor --throughput  Include a small read/write probe
+  hermes ssd reset --dry-run  Preview first-run reset (no changes)
+  hermes ssd reset            Clean runtime state on the SSD
+  hermes ssd reset --include-models  Also remove downloaded models
+  hermes ssd reset --all-managed-data  Reset all project-managed SSD data
 
 Normal `hermes` is unchanged. SSD mode never falls back to internal storage.
 "#

@@ -12,6 +12,7 @@ pub mod errors;
 pub mod launcher;
 pub mod locks;
 pub mod paths;
+pub mod reset;
 pub mod runtime;
 
 // SSD-streaming inference engine
