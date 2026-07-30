@@ -9,7 +9,11 @@
 
 ## Status
 
-v0.3.0 — production launcher with safe reset, hardware-aware benchmarks, and SSD-streaming inference engine.
+v0.3.1 — production launcher with safe reset, hardware-aware benchmarks, SSD-streaming inference engine, and Engineering Constitution governance.
+
+## Engineering standards
+
+All work on this repository follows **`CONSTITUTION.md`** (Hermes SSD LLM Engineering Constitution v1.0). AI agents and contributors should also read **`AGENTS.md`** before making changes.
 
 ## Two-action workflow
 
@@ -174,11 +178,22 @@ flowchart TD
 - Reset refuses paths outside managed SSD directories
 - Doctor redacts secrets from output
 
+## Documentation
+
+| File | Purpose |
+|------|---------|
+| `CONSTITUTION.md` | Engineering constitution (absolute authority) |
+| `AGENTS.md` | AI agent and contributor instructions |
+| `ARCHITECTURE.md` | System design and module map |
+| `SECURITY.md` | Security model and path safety |
+| `CONTRIBUTING.md` | Contribution workflow and quality gates |
+| `BENCHMARKS.md` | Measured benchmark results only |
+| `MIGRATION.md` | Naming history and reset guide |
+
 ## Development (Rust)
 
 ```bash
 cargo fmt --check
-cargo clippy --all-targets --all-features -- -D warnings
 cargo test --lib --tests
 cargo build --release
 ```

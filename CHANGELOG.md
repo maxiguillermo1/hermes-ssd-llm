@@ -1,5 +1,23 @@
 # Changelog
 
+## v0.3.1 — Engineering Constitution governance (2026-07-30)
+
+### Added
+
+- **`CONSTITUTION.md`** — Hermes SSD LLM Engineering Constitution v1.0 (absolute engineering authority)
+- **`AGENTS.md`** — agent and contributor instructions referencing the constitution
+- **`ARCHITECTURE.md`** — system design, modes, and module map
+- **`SECURITY.md`** — threat model, path safety, and secret handling
+- **`CONTRIBUTING.md`** — contribution workflow and quality gates
+- **`NOTICE`** — upstream ssd-llm and Hermes Agent attribution
+
+### Unchanged
+
+- User workflow: connect SSD → `hermes ssd` → use Hermes normally
+- `hermes` command behavior and Hermes TUI/UX
+
+---
+
 ## v0.3.0 — First-run reset and measured benchmarks (2026-07-30)
 
 ### Added

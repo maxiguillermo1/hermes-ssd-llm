@@ -1,0 +1,17 @@
+Hermes SSD LLM
+
+Copyright (c) 2026 Maxi Guillermo
+
+This product includes software developed from the open-source ssd-llm project:
+https://github.com/redbasecap-buiss/ssd-llm
+
+The local GGUF inference engine (modules under src/ssd/, src/metal/, src/inference/,
+src/model/, src/api/, and related) incorporates architecture and implementation
+patterns from that upstream project, used under the terms of its MIT license.
+
+Hermes SSD LLM modifications (dispatcher, SSD validation, environment routing,
+reset, diagnostics, install tooling, and documentation) are Copyright (c) 2026
+Maxi Guillermo and licensed under MIT. See LICENSE.
+
+Hermes Agent is a separate upstream product by Nous Research:
+https://hermes-agent.nousresearch.com/
