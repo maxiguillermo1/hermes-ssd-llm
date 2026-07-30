@@ -1,0 +1,11 @@
+/target
+Cargo.lock
+*.gguf
+*.bin
+.DS_Store
+.env
+*.pem
+*.key
+secrets/
+.hermes-ssd-llm-baseline.txt.bak
+.hermes-ssd-llm-baseline.txt
