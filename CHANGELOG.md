@@ -1,38 +1,47 @@
 # Changelog
 
-## v0.2.0 — Hermes SSD LLM rename (2026-07-30)
-
-### Changed
-
-- Project renamed from `hermes-ssd` to `hermes-ssd-llm`
-- Rust package `hermes-ssd-llm`, library crate `hermes_ssd_llm`, binary `hermes-ssd-llm`
-- SSD directory root: `<mount>/Hermes-SSD-LLM/`
-- Config directory: `~/.config/hermes-ssd-llm/`
-- Environment variables prefixed with `HERMES_SSD_LLM_`
+## v0.3.0 — First-run reset and measured benchmarks (2026-07-30)
 
 ### Added
 
-- Config migration from legacy `~/.config/hermes-ssd/`
-- Backward-compatible SSD root detection for existing `Hermes-SSD/` directories
+- **`hermes ssd reset`** — safe scoped cleanup of runtime state on the registered SSD
+- **`hermes ssd reset --dry-run`** — preview paths without deleting
+- **`hermes ssd reset --include-models`** — also remove downloaded models
+- **`hermes ssd reset --all-managed-data`** — reset all project-managed SSD directories
+- Backup manifest written to `<SSD>/Hermes-SSD-LLM/backups/` on each reset
+- **`scripts/capture-test-system.sh`** — sanitized hardware + toolchain report
+- **Benchmark suite** under `benchmarks/scripts/` (storage, startup, routing, memory)
+- Reset path safety validation (rejects home, `/Volumes`, SSD root, symlink escapes)
+
+### Changed
+
+- **README.md** replaced with current Hermes SSD LLM documentation (Rust-first)
+- **BENCHMARKS.md** replaced with measured results from detected test hardware only
+- Removed inherited/unverified benchmark claims from prior ssd-llm documentation
+
+### Documentation
+
+- `benchmarks/README.md` — how to run benchmarks
+- `MIGRATION.md` — naming history and safe reset guide
+- `.gitignore` updated for benchmark private captures and artifacts
 
 ### Unchanged
 
-- User command remains `hermes ssd`
-- Normal `hermes` behavior unchanged
-- Hermes TUI, providers, skills, and tools unchanged
+- `hermes` command behavior
+- Hermes TUI / UX
+- SSD identity registration and no-fallback policy
+
+---
+
+## v0.2.0 — Hermes SSD LLM rename (2026-07-30)
+
+- Project renamed to `hermes-ssd-llm`
+- SSD root: `<mount>/Hermes-SSD-LLM/`
+- Config: `~/.config/hermes-ssd-llm/`
 
 ---
 
 ## v0.1.0 — Initial release (2026-07-30)
 
-### Added
-
-- **`hermes ssd` command** — dispatcher wrapping the real Hermes executable with SSD verification and environment routing
-- **Stable SSD identity** — volume UUID registration via `diskutil`, external-device checks, read/write probes, free-space thresholds
-- **SSD directory layout** — models, cache, data, runtime, logs on external SSD
-- **Environment routing** — `HERMES_HOME`, `TMPDIR`, `HF_HOME`, `HUGGINGFACE_HUB_CACHE`, `TRANSFORMERS_CACHE`, `CARGO_TARGET_DIR`, XDG paths
-- **`hermes ssd doctor`** — diagnostics without exposing secrets
-- **Install/uninstall scripts** — idempotent user-local install to `~/.local/bin`
-- **Local inference engine** — SSD streaming, Metal, GGUF, API stack
-
----
+- `hermes ssd` dispatcher, SSD validation, environment routing, doctor, install/uninstall
+- Local GGUF inference engine with Metal acceleration

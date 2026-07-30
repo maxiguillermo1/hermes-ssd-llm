@@ -403,7 +403,10 @@ fn handle_version(stream: &mut TcpStream) -> Result<()> {
     send_json_response(
         stream,
         200,
-        &format!(r#"{{"version":"{}-hermes-ssd-llm"}}"#, env!("CARGO_PKG_VERSION")),
+        &format!(
+            r#"{{"version":"{}-hermes-ssd-llm"}}"#,
+            env!("CARGO_PKG_VERSION")
+        ),
     )
 }
 

@@ -43,7 +43,9 @@ pub enum HermesSsdLlmError {
     #[error("Hermes SSD LLM found the volume, but it is read-only.\nRepair or remount the drive before continuing.")]
     ReadOnlyVolume,
 
-    #[error("Hermes SSD LLM requires at least {required_gb} GB free.\nAvailable: {available_gb} GB.")]
+    #[error(
+        "Hermes SSD LLM requires at least {required_gb} GB free.\nAvailable: {available_gb} GB."
+    )]
     InsufficientSpace { required_gb: u64, available_gb: u64 },
 
     #[error("Hermes SSD LLM failed to initialize directory {path}: {reason}")]

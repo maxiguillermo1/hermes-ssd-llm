@@ -140,8 +140,9 @@ impl HermesSsdLlmConfig {
         if path.exists() {
             let _ = fs::copy(&path, &backup);
         }
-        let content = toml::to_string_pretty(self)
-            .map_err(|e| HermesSsdLlmError::InvalidConfig(format!("cannot serialize config: {e}")))?;
+        let content = toml::to_string_pretty(self).map_err(|e| {
+            HermesSsdLlmError::InvalidConfig(format!("cannot serialize config: {e}"))
+        })?;
         fs::write(&path, content).map_err(|e| {
             HermesSsdLlmError::InvalidConfig(format!("cannot write {}: {e}", path.display()))
         })?;

@@ -21,7 +21,10 @@ impl RoutedEnvironment {
             "HERMES_SSD_LLM_MOUNT".into(),
             vol.mount_point.display().to_string(),
         );
-        vars.insert("HERMES_SSD_LLM_ROOT".into(), paths.root.display().to_string());
+        vars.insert(
+            "HERMES_SSD_LLM_ROOT".into(),
+            paths.root.display().to_string(),
+        );
 
         // Hermes respects HERMES_HOME for all profile data, caches, sessions, skills, etc.
         vars.insert(

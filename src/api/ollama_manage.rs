@@ -146,7 +146,10 @@ pub fn model_info_to_json(info: &ModelInfo) -> String {
         String::new()
     };
 
-    let modelfile = format!("# hermes-ssd-llm model\\nFROM {}\\n", escape_json_str(&info.name));
+    let modelfile = format!(
+        "# hermes-ssd-llm model\\nFROM {}\\n",
+        escape_json_str(&info.name)
+    );
     let parameters = "temperature 0.7\\ntop_p 0.9\\ntop_k 40";
 
     format!(

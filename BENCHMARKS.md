@@ -1,79 +1,108 @@
-# Benchmarks 📊
+# Benchmarks
 
-Real-world performance of **hermes-ssd-llm** compared to llama.cpp — measured on real Apple Silicon hardware.
+All numbers on this page were **measured on the detected test system** (2026-07-30). They apply to that Mac and SanDisk SSD only.
 
-> The point of hermes-ssd-llm is not to beat llama.cpp on tiny models that fit in RAM anyway.
-> It shines where llama.cpp fails: **models larger than your unified memory**.
-> A 70B Q4 model needs ~40GB — impossible on a 16GB MacBook with llama.cpp, but hermes-ssd-llm streams layers from SSD.
+> Hermes SSD LLM is not designed to beat in-RAM inference on tiny models. SSD mode reduces **internal-drive use** and **memory pressure** for large local models. Remote providers still run inference in the cloud.
 
-## Test Environment
+## Test system
 
-| | |
-|---|---|
-| **Machine** | MacBook, Apple M4 (base) |
-| **RAM** | 16 GB unified memory |
-| **macOS** | 26.6 |
-| **hermes-ssd-llm** | v1.39.0 (Metal GPU acceleration) |
-| **llama.cpp** | b10180 (Metal backend) |
-| **Model** | Qwen2-0.5B-Instruct Q4_0 (330 MB, 24 layers) |
+| Field | Measured value |
+|-------|----------------|
+| Date | 2026-07-30 |
+| Project version | 0.3.0 |
+| Git commit | `f96b6af` |
+| Mac model | MacBook Air (Mac14,2) |
+| Chip | Apple M2 (8 cores) |
+| Unified memory | 8.0 GiB |
+| macOS | 26.2 |
+| Internal storage | 228.3 GiB total, 16.1 GiB free (at capture) |
+| External SSD (reported name) | Extreme SSD |
+| SSD filesystem | ExFAT |
+| SSD connection | USB |
+| SSD capacity | 1863 GB (decimal, formatted) |
+| SSD available | 1834 GB (at capture) |
+| Hermes | v0.19.0 |
+| Hermes SSD LLM | 0.3.0 |
+| Rust | 1.97.1 |
 
-## Results — Model fits in RAM
+Full sanitized report: `benchmarks/results/current-system.md`  
+Regenerate: `./scripts/capture-test-system.sh`
 
-### llama.cpp (`llama-bench`)
+## Storage (sequential)
 
-| Test | Throughput |
-|---|---|
-| Prompt processing (pp512) | **2628 t/s** |
-| Token generation (tg128) | **156.6 t/s** |
+**Command:** `./benchmarks/scripts/benchmark-storage.sh`  
+**Test file:** 256 MiB  
+**Runs:** 3 (+ 1 warmup)
 
-### hermes-ssd-llm (`hermes-ssd-llm bench --json`)
+| Metric | Median | Min–max | Units |
+|--------|--------|---------|-------|
+| Sequential write | 1379.30 | — | MiB/s |
+| Sequential read | 6710.34 | — | MiB/s |
+| 100 small file creates | 75.22 | — | ms |
+| Startup validation (doctor probe) | 531.29 | — | ms |
 
-| Scenario | Metric | Value |
-|---|---|---|
-| GGUF parse | time | 29 ms |
-| Cold layer load (SSD) | bandwidth | **4274 MB/s** |
-| Sequential stream (10 layers, prefetch) | bandwidth | **3058 MB/s** |
-| Warm LRU cache | hit rate | **100%** (1.8 µs lookup) |
-| Est. prefill | throughput | ~222 t/s |
-| Est. decode | throughput | ~9.2 t/s |
+**Limitations:** ExFAT over USB; macOS cache may inflate read speeds on warm runs; single-threaded `dd`, not multi-queue peak.
 
-> ⚠️ Small-model caveat: with a 330 MB model and 8 GB budget, everything is cached —
-> the SSD streaming path isn't stressed. llama.cpp wins here, as expected.
+## Hermes startup
 
-## The real comparison: bigger-than-RAM models
+**Command:** `./benchmarks/scripts/benchmark-startup.sh`  
+**Runs:** 5 (+ 1 warmup)
 
-| Model size | llama.cpp (16 GB Mac) | hermes-ssd-llm (16 GB Mac) |
-|---|---|---|
-| 7B Q4 (~4 GB) | ✅ ~30-60 t/s | ✅ works, fully cached |
-| 13B Q4 (~8 GB) | ⚠️ swap thrashing | ✅ works |
-| 34B Q4 (~20 GB) | ❌ won't load | ✅ SSD streaming |
-| 70B Q4 (~40 GB) | ❌ impossible | ✅ **SSD streaming + prefetch** |
-| 70B Q4, 128k context | ❌ impossible | ✅ mmap KV cache + PagedAttention swap |
+| Test | Median | Units |
+|------|--------|-------|
+| `hermes --version` | 259.0 | ms |
+| `hermes ssd --help` | 22.1 | ms |
+| `hermes ssd doctor` | 532.7 | ms |
 
-hermes-ssd-llm's predictive prefetching hides SSD latency behind GPU compute, and its
-INT8-quantized KV block swapping reduces I/O bandwidth by ~4x for long contexts.
+`hermes ssd` adds SSD verification before launching Hermes. Doctor includes full validation plus routing report.
 
-## Reproduce
+## Storage routing (verified)
+
+**Command:** `./benchmarks/scripts/benchmark-routing.sh`
+
+All heavy paths resolved under `/Volumes/.../Hermes-SSD-LLM/`:
+
+| Variable | On external SSD |
+|----------|-----------------|
+| `HERMES_HOME` | yes |
+| `TMPDIR` | yes |
+| `HF_HOME` | yes |
+| `CARGO_TARGET_DIR` | yes |
+| `HERMES_SSD_LLM_MODELS` | yes |
+| `HERMES_SSD_LLM_LOG_DIR` | yes |
+
+## Memory snapshot
+
+**Command:** `./benchmarks/scripts/benchmark-memory.sh`
+
+| Metric | Value |
+|--------|-------|
+| `hermes --version` max RSS | ~50.5 MiB |
+| `hermes ssd doctor` max RSS | ~49.9 MiB |
+| Free memory (approx) | ~798 MiB |
+
+Short-lived process RSS only; `powermetrics` not used (requires privileges).
+
+## Local inference
+
+Not run in this refresh (no GGUF model on SSD at benchmark time). When a model is available:
 
 ```bash
-# hermes-ssd-llm
-hermes-ssd-llm pull "Qwen/Qwen2-0.5B-Instruct-GGUF:qwen2-0_5b-instruct-q4_0.gguf"
-hermes-ssd-llm bench models/qwen2-0_5b-instruct-q4_0.gguf --json
-
-# llama.cpp
-brew install llama.cpp
-llama-bench -m models/qwen2-0_5b-instruct-q4_0.gguf
+hermes-ssd-llm bench /path/to/model.gguf --json
 ```
 
-Or run the full comparison script:
+## Remote providers
+
+For Cursor, OpenAI, Anthropic, etc., only local startup and storage routing are relevant. Model computation remains remote.
+
+## Full suite
 
 ```bash
-./scripts/compare_benchmarks.sh <model.gguf>
+./benchmarks/scripts/generate-report.sh
 ```
 
-## Roadmap for benchmark coverage
+Outputs: `benchmarks/results/latest.json`, `latest.md`
 
-- [ ] 70B Q4 on 16 GB Mac (the headline benchmark)
-- [ ] Long-context (128k) KV swap throughput
-- [ ] Speculative decoding speedup measurement
-- [ ] CI benchmark regression tracking via `--json` output
+## Removed claims
+
+Inherited estimates from the upstream prototype (M4/16GB, v1.39.0 llama.cpp comparisons, ~9 t/s decode) were **removed**. This document lists only measurements from `benchmarks/results/*.json` on the test Mac.

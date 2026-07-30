@@ -43,9 +43,7 @@ pub fn candidate_hermes_paths() -> Vec<PathBuf> {
     let mut paths = Vec::new();
     if let Ok(home) = std::env::var("HOME") {
         paths.push(PathBuf::from(&home).join(".local/bin/hermes-real"));
-        paths.push(
-            PathBuf::from(&home).join("Desktop/Hermes/hermes-agent/.venv/bin/hermes"),
-        );
+        paths.push(PathBuf::from(&home).join("Desktop/Hermes/hermes-agent/.venv/bin/hermes"));
         paths.push(PathBuf::from(&home).join(".local/bin/hermes.real"));
     }
     paths.push(PathBuf::from("/opt/homebrew/bin/hermes"));
@@ -74,8 +72,8 @@ pub fn install_state_path() -> PathBuf {
 }
 
 pub fn load_install_state() -> Result<InstallState> {
-    let raw =
-        std::fs::read_to_string(install_state_path()).map_err(|_| HermesSsdLlmError::HermesMissing)?;
+    let raw = std::fs::read_to_string(install_state_path())
+        .map_err(|_| HermesSsdLlmError::HermesMissing)?;
     serde_json::from_str(&raw).map_err(|e| HermesSsdLlmError::Other(e.to_string()))
 }
 
@@ -105,7 +103,8 @@ fn exec_hermes_raw(real: &Path, args: &[String]) -> Result<()> {
     let c_args: Result<Vec<CString>> = args
         .iter()
         .map(|a| {
-            CString::new(a.as_bytes()).map_err(|_| HermesSsdLlmError::Other("invalid argument".into()))
+            CString::new(a.as_bytes())
+                .map_err(|_| HermesSsdLlmError::Other("invalid argument".into()))
         })
         .collect();
     let c_args = c_args?;

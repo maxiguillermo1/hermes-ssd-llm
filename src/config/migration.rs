@@ -35,8 +35,9 @@ pub fn migrate_config_if_needed() -> Result<()> {
     table
         .entry("require_external_device")
         .or_insert(toml::Value::Boolean(true));
-    let migrated = toml::to_string_pretty(&value)
-        .map_err(|e| HermesSsdLlmError::InvalidConfig(format!("migration serialize failed: {e}")))?;
+    let migrated = toml::to_string_pretty(&value).map_err(|e| {
+        HermesSsdLlmError::InvalidConfig(format!("migration serialize failed: {e}"))
+    })?;
     let backup = path.with_extension(format!("toml.v{version}.bak"));
     fs::copy(&path, &backup).ok();
     fs::write(&path, migrated)
