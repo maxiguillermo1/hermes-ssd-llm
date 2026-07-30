@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-07-30T23:42:13Z",
+  "project": "hermes-ssd-llm",
+  "project_version": "0.3.0",
+  "git_commit": "f96b6af8937315e2cd9720c2fd6bf5c46e7413f9",
+  "mac": {
+    "model_name": "MacBook Air",
+    "model_identifier": "Mac14,2",
+    "chip": "Apple M2",
+    "cpu_cores": "8 (4 performance and 4 efficiency)",
+    "unified_memory_gib": 8.0,
+    "architecture": "arm64",
+    "macos_version": "26.2"
+  },
+  "internal_storage": {
+    "filesystem": "unavailable",
+    "total_gib": 228.3,
+    "available_gib": 16.8
+  },
+  "external_ssd": {
+    "manufacturer": "SanDisk",
+    "reported_model": "Extreme SSD",
+    "filesystem_type": "ExFAT",
+    "connection_protocol": "USB",
+    "total_gb_decimal": "1863",
+    "available_gb_decimal": "1834",
+    "volume_uuid": "REDACTED"
+  },
+  "toolchain": {
+    "hermes_version": "Hermes Agent v0.19.0 (2026.7.20) \u00b7 upstream 58708c70 \u00b7 local 0b968186 (+15 carried commits)",
+    "hermes_ssd_llm_version": "0.3.0",
+    "rust_version": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+    "cargo_version": "cargo 1.97.1 (c980f4866 2026-06-30)"
+  },
+  "test_conditions": {
+    "power_source": "AC",
+    "thermal_state": "unavailable"
+  }
+}

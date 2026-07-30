@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-07-30T23:42:29Z",
+  "project_version": "0.3.0",
+  "git_commit": "f96b6af8937315e2cd9720c2fd6bf5c46e7413f9",
+  "benchmark": "storage-routing",
+  "paths": {
+    "HERMES_HOME": {"path": "/Volumes/Extreme SSD/Hermes-SSD-LLM/data/hermes", "on_external_ssd": true},
+    "TMPDIR": {"path": "/Volumes/Extreme SSD/Hermes-SSD-LLM/tmp", "on_external_ssd": true},
+    "HF_HOME": {"path": "/Volumes/Extreme SSD/Hermes-SSD-LLM/cache/huggingface", "on_external_ssd": true},
+    "CARGO_TARGET_DIR": {"path": "/Volumes/Extreme SSD/Hermes-SSD-LLM/cache/rust/target", "on_external_ssd": true},
+    "HERMES_SSD_LLM_MODELS": {"path": "/Volumes/Extreme SSD/Hermes-SSD-LLM/models/gguf", "on_external_ssd": true},
+    "HERMES_SSD_LLM_LOG_DIR": {"path": "/Volumes/Extreme SSD/Hermes-SSD-LLM/logs", "on_external_ssd": true}
+  },
+  "all_heavy_paths_on_ssd": true
+}

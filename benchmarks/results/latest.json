@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-07-30T23:42:30Z",
+  "project_version": "0.3.0",
+  "git_commit": "f96b6af8937315e2cd9720c2fd6bf5c46e7413f9",
+  "reports": {
+    "current-system": {
+      "schema_version": 1,
+      "captured_at": "2026-07-30T23:42:13Z",
+      "project": "hermes-ssd-llm",
+      "project_version": "0.3.0",
+      "git_commit": "f96b6af8937315e2cd9720c2fd6bf5c46e7413f9",
+      "mac": {
+        "model_name": "MacBook Air",
+        "model_identifier": "Mac14,2",
+        "chip": "Apple M2",
+        "cpu_cores": "8 (4 performance and 4 efficiency)",
+        "unified_memory_gib": 8.0,
+        "architecture": "arm64",
+        "macos_version": "26.2"
+      },
+      "internal_storage": {
+        "filesystem": "unavailable",
+        "total_gib": 228.3,
+        "available_gib": 16.8
+      },
+      "external_ssd": {
+        "manufacturer": "SanDisk",
+        "reported_model": "Extreme SSD",
+        "filesystem_type": "ExFAT",
+        "connection_protocol": "USB",
+        "total_gb_decimal": "1863",
+        "available_gb_decimal": "1834",
+        "volume_uuid": "REDACTED"
+      },
+      "toolchain": {
+        "hermes_version": "Hermes Agent v0.19.0 (2026.7.20) \u00b7 upstream 58708c70 \u00b7 local 0b968186 (+15 carried commits)",
+        "hermes_ssd_llm_version": "0.3.0",
+        "rust_version": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+        "cargo_version": "cargo 1.97.1 (c980f4866 2026-06-30)"
+      },
+      "test_conditions": {
+        "power_source": "AC",
+        "thermal_state": "unavailable"
+      }
+    },
+    "storage-benchmark": {
+      "schema_version": 1,
+      "captured_at": "2026-07-30T23:42:16Z",
+      "project_version": "0.3.0",
+      "git_commit": "f96b6af8937315e2cd9720c2fd6bf5c46e7413f9",
+      "benchmark": "storage",
+      "test_file_size_mib": 256,
+      "runs": 3,
+      "warmup": 1,
+      "results": {
+        "sequential_write_mib_per_s": {
+          "median": 1539.1,
+          "unit": "MiB/s"
+        },
+        "sequential_read_mib_per_s": {
+          "median": 6675.71,
+          "unit": "MiB/s"
+        },
+        "small_file_create_100_ms": {
+          "median": 73.42,
+          "unit": "ms"
+        },
+        "startup_validation_ms": {
+          "median": 568.58,
+          "unit": "ms"
+        }
+      },
+      "limitations": [
+        "ExFAT USB SSD; OS cache may affect warm runs",
+        "Single-process dd; not multi-queue NVMe peak"
+      ]
+    },
+    "startup-benchmark": {
+      "schema_version": 1,
+      "captured_at": "2026-07-30T23:42:23Z",
+      "project_version": "0.3.0",
+      "git_commit": "f96b6af8937315e2cd9720c2fd6bf5c46e7413f9",
+      "benchmark": "startup",
+      "runs": 5,
+      "warmup": 1,
+      "results": {
+        "hermes_version_ms": {
+          "median": 247.2,
+          "unit": "ms"
+        },
+        "hermes_ssd_help_ms": {
+          "median": 21.4,
+          "unit": "ms"
+        },
+        "hermes_ssd_doctor_ms": {
+          "median": 541.5,
+          "unit": "ms"
+        },
+        "ssd_validation_overhead_ms": {
+          "median": 0,
+          "unit": "ms"
+        }
+      },
+      "notes": "hermes ssd --help includes SSD verify + prints Hermes help; not full TUI launch"
+    },
+    "routing-benchmark": {
+      "schema_version": 1,
+      "captured_at": "2026-07-30T23:42:29Z",
+      "project_version": "0.3.0",
+      "git_commit": "f96b6af8937315e2cd9720c2fd6bf5c46e7413f9",
+      "benchmark": "storage-routing",
+      "paths": {
+        "HERMES_HOME": {
+          "path": "/Volumes/Extreme SSD/Hermes-SSD-LLM/data/hermes",
+          "on_external_ssd": true
+        },
+        "TMPDIR": {
+          "path": "/Volumes/Extreme SSD/Hermes-SSD-LLM/tmp",
+          "on_external_ssd": true
+        },
+        "HF_HOME": {
+          "path": "/Volumes/Extreme SSD/Hermes-SSD-LLM/cache/huggingface",
+          "on_external_ssd": true
+        },
+        "CARGO_TARGET_DIR": {
+          "path": "/Volumes/Extreme SSD/Hermes-SSD-LLM/cache/rust/target",
+          "on_external_ssd": true
+        },
+        "HERMES_SSD_LLM_MODELS": {
+          "path": "/Volumes/Extreme SSD/Hermes-SSD-LLM/models/gguf",
+          "on_external_ssd": true
+        },
+        "HERMES_SSD_LLM_LOG_DIR": {
+          "path": "/Volumes/Extreme SSD/Hermes-SSD-LLM/logs",
+          "on_external_ssd": true
+        }
+      },
+      "all_heavy_paths_on_ssd": true
+    },
+    "memory-benchmark": {
+      "schema_version": 1,
+      "captured_at": "2026-07-30T23:42:29Z",
+      "project_version": "0.3.0",
+      "git_commit": "f96b6af8937315e2cd9720c2fd6bf5c46e7413f9",
+      "benchmark": "memory",
+      "results": {
+        "hermes_version_max_rss_mib": 50.3,
+        "hermes_ssd_doctor_max_rss_mib": 50.1,
+        "swap_used_mb": "  ",
+        "free_memory_mib_approx": "969.203125"
+      },
+      "limitations": [
+        "RSS from /usr/bin/time -l; short-lived processes only",
+        "powermetrics not used (requires elevated permissions)"
+      ]
+    }
+  }
+}
