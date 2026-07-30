@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "captured_at": "2026-07-30T23:42:13Z",
+  "captured_at": "2026-07-30T23:56:38Z",
   "project": "hermes-ssd-llm",
-  "project_version": "0.3.0",
-  "git_commit": "f96b6af8937315e2cd9720c2fd6bf5c46e7413f9",
+  "project_version": "0.3.1",
+  "git_commit": "4bc9a131cbfed46adc23571527e99e6e919a5e8a",
   "mac": {
     "model_name": "MacBook Air",
     "model_identifier": "Mac14,2",
@@ -16,7 +16,7 @@
   "internal_storage": {
     "filesystem": "unavailable",
     "total_gib": 228.3,
-    "available_gib": 16.8
+    "available_gib": 17.8
   },
   "external_ssd": {
     "manufacturer": "SanDisk",
@@ -24,12 +24,12 @@
     "filesystem_type": "ExFAT",
     "connection_protocol": "USB",
     "total_gb_decimal": "1863",
-    "available_gb_decimal": "1834",
+    "available_gb_decimal": "1832",
     "volume_uuid": "REDACTED"
   },
   "toolchain": {
     "hermes_version": "Hermes Agent v0.19.0 (2026.7.20) \u00b7 upstream 58708c70 \u00b7 local 0b968186 (+15 carried commits)",
-    "hermes_ssd_llm_version": "0.3.0",
+    "hermes_ssd_llm_version": "0.3.1",
     "rust_version": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
     "cargo_version": "cargo 1.97.1 (c980f4866 2026-06-30)"
   },

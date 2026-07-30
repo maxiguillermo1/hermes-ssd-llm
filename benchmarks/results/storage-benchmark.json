@@ -1,17 +1,17 @@
 {
   "schema_version": 1,
-  "captured_at": "2026-07-30T23:42:16Z",
-  "project_version": "0.3.0",
-  "git_commit": "f96b6af8937315e2cd9720c2fd6bf5c46e7413f9",
+  "captured_at": "2026-07-30T23:56:40Z",
+  "project_version": "0.3.1",
+  "git_commit": "4bc9a131cbfed46adc23571527e99e6e919a5e8a",
   "benchmark": "storage",
   "test_file_size_mib": 256,
   "runs": 3,
   "warmup": 1,
   "results": {
-    "sequential_write_mib_per_s": {"median": 1539.10, "unit": "MiB/s"},
-    "sequential_read_mib_per_s": {"median": 6675.71, "unit": "MiB/s"},
-    "small_file_create_100_ms": {"median": 73.42, "unit": "ms"},
-    "startup_validation_ms": {"median": 568.58, "unit": "ms"}
+    "sequential_write_mib_per_s": {"median": 1537.47, "unit": "MiB/s"},
+    "sequential_read_mib_per_s": {"median": 6741.26, "unit": "MiB/s"},
+    "small_file_create_100_ms": {"median": 73.28, "unit": "ms"},
+    "startup_validation_ms": {"median": 563.34, "unit": "ms"}
   },
   "limitations": [
     "ExFAT USB SSD; OS cache may affect warm runs",

@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "captured_at": "2026-07-30T23:42:29Z",
-  "project_version": "0.3.0",
-  "git_commit": "f96b6af8937315e2cd9720c2fd6bf5c46e7413f9",
+  "captured_at": "2026-07-30T23:56:54Z",
+  "project_version": "0.3.1",
+  "git_commit": "4bc9a131cbfed46adc23571527e99e6e919a5e8a",
   "benchmark": "memory",
   "results": {
-    "hermes_version_max_rss_mib": 50.3,
-    "hermes_ssd_doctor_max_rss_mib": 50.1,
+    "hermes_version_max_rss_mib": 50.6,
+    "hermes_ssd_doctor_max_rss_mib": 50.7,
     "swap_used_mb": "  ",
-    "free_memory_mib_approx": "969.203125"
+    "free_memory_mib_approx": "420.625"
   },
   "limitations": [
     "RSS from /usr/bin/time -l; short-lived processes only",

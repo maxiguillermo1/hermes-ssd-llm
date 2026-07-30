@@ -9,20 +9,20 @@ All numbers on this page were **measured on the detected test system** (2026-07-
 | Field | Measured value |
 |-------|----------------|
 | Date | 2026-07-30 |
-| Project version | 0.3.0 |
-| Git commit | `f96b6af` |
+| Project version | 0.3.1 |
+| Git commit | `4bc9a13` |
 | Mac model | MacBook Air (Mac14,2) |
 | Chip | Apple M2 (8 cores) |
 | Unified memory | 8.0 GiB |
 | macOS | 26.2 |
-| Internal storage | 228.3 GiB total, 16.1 GiB free (at capture) |
+| Internal storage | 228.3 GiB total, 17.8 GiB free (at capture) |
 | External SSD (reported name) | Extreme SSD |
 | SSD filesystem | ExFAT |
 | SSD connection | USB |
 | SSD capacity | 1863 GB (decimal, formatted) |
-| SSD available | 1834 GB (at capture) |
+| SSD available | 1832 GB (at capture) |
 | Hermes | v0.19.0 |
-| Hermes SSD LLM | 0.3.0 |
+| Hermes SSD LLM | 0.3.1 |
 | Rust | 1.97.1 |
 
 Full sanitized report: `benchmarks/results/current-system.md`  
@@ -36,10 +36,10 @@ Regenerate: `./scripts/capture-test-system.sh`
 
 | Metric | Median | Min–max | Units |
 |--------|--------|---------|-------|
-| Sequential write | 1379.30 | — | MiB/s |
-| Sequential read | 6710.34 | — | MiB/s |
-| 100 small file creates | 75.22 | — | ms |
-| Startup validation (doctor probe) | 531.29 | — | ms |
+| Sequential write | 1537.47 | — | MiB/s |
+| Sequential read | 6741.26 | — | MiB/s |
+| 100 small file creates | 73.28 | — | ms |
+| Startup validation (doctor probe) | 563.34 | — | ms |
 
 **Limitations:** ExFAT over USB; macOS cache may inflate read speeds on warm runs; single-threaded `dd`, not multi-queue peak.
 
@@ -50,9 +50,9 @@ Regenerate: `./scripts/capture-test-system.sh`
 
 | Test | Median | Units |
 |------|--------|-------|
-| `hermes --version` | 259.0 | ms |
-| `hermes ssd --help` | 22.1 | ms |
-| `hermes ssd doctor` | 532.7 | ms |
+| `hermes --version` | 250.0 | ms |
+| `hermes ssd --help` | 21.9 | ms |
+| `hermes ssd doctor` | 556.2 | ms |
 
 `hermes ssd` adds SSD verification before launching Hermes. Doctor includes full validation plus routing report.
 
@@ -77,9 +77,9 @@ All heavy paths resolved under `/Volumes/.../Hermes-SSD-LLM/`:
 
 | Metric | Value |
 |--------|-------|
-| `hermes --version` max RSS | ~50.5 MiB |
-| `hermes ssd doctor` max RSS | ~49.9 MiB |
-| Free memory (approx) | ~798 MiB |
+| `hermes --version` max RSS | ~50.6 MiB |
+| `hermes ssd doctor` max RSS | ~50.7 MiB |
+| Free memory (approx) | ~421 MiB |
 
 Short-lived process RSS only; `powermetrics` not used (requires privileges).
 

@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
-  "captured_at": "2026-07-30T23:42:23Z",
-  "project_version": "0.3.0",
-  "git_commit": "f96b6af8937315e2cd9720c2fd6bf5c46e7413f9",
+  "captured_at": "2026-07-30T23:56:47Z",
+  "project_version": "0.3.1",
+  "git_commit": "4bc9a131cbfed46adc23571527e99e6e919a5e8a",
   "benchmark": "startup",
   "runs": 5,
   "warmup": 1,
   "results": {
-    "hermes_version_ms": {"median": 247.2, "unit": "ms"},
-    "hermes_ssd_help_ms": {"median": 21.4, "unit": "ms"},
-    "hermes_ssd_doctor_ms": {"median": 541.5, "unit": "ms"},
+    "hermes_version_ms": {"median": 250.0, "unit": "ms"},
+    "hermes_ssd_help_ms": {"median": 21.9, "unit": "ms"},
+    "hermes_ssd_doctor_ms": {"median": 556.2, "unit": "ms"},
     "ssd_validation_overhead_ms": {"median": 0, "unit": "ms"}
   },
   "notes": "hermes ssd --help includes SSD verify + prints Hermes help; not full TUI launch"
