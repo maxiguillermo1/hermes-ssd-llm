@@ -9,3 +9,20 @@ Cargo.lock
 secrets/
 .hermes-ssd-llm-baseline.txt.bak
 .hermes-ssd-llm-baseline.txt
+benchmarks/results/private/
+benchmarks/results/.current-system-raw.txt
+benchmarks/results/*.tmp
+*.part
+*.incomplete
+
+# Generated runtime / benchmark artifacts
+benchmarks/results/private/
+benchmarks/fixtures/*.bin
+benchmarks/fixtures/*.dat
+*.log
+*.part
+*.tmp
+*.incomplete
+
+# Local config with UUIDs (never commit)
+config.local.toml
