@@ -3,6 +3,7 @@
 #![allow(dead_code)] // inference engine retains APIs for future wiring
 
 // Hermes SSD LLM infrastructure
+pub mod bootstrap;
 pub mod cli;
 pub mod config;
 pub mod device;

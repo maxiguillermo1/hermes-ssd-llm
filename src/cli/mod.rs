@@ -1,5 +1,6 @@
 //! CLI routing for `hermes ssd` subcommands.
 
+use crate::bootstrap::bootstrap_hermes_home;
 use crate::config::{migrate_config_if_needed, HermesSsdLlmConfig};
 use crate::device::verify_volume;
 use crate::diagnostics;
@@ -28,6 +29,7 @@ fn launch_ssd_mode_inner(args: &[String], quiet: bool) -> Result<()> {
 
     let vol = verify_volume(&cfg)?;
     let paths = SsdPaths::from_mount(&vol.mount_point);
+    bootstrap_hermes_home(&paths.hermes_home)?;
     SessionLock::clear_unclean(&paths);
     let _lock = SessionLock::acquire(&paths)?;
     let env = RoutedEnvironment::build(&cfg, &vol);
