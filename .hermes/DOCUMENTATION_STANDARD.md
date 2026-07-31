@@ -55,6 +55,21 @@ Documentation should feel comparable to:
 
 ## Required files
 
+### PROJECT_MANIFEST.md (required)
+
+Agent-optimized entry point. Unlike README (human-first), the manifest is concise and structured for coding agents:
+
+- Project purpose, stack, and status in scannable tables
+- Repository layout and key commands
+- Architecture summary with pointers to ARCHITECTURE.md / TECHNICAL.md
+- Config, data, and secrets locations
+- Engineering standards (.hermes/, CONTRIBUTING.md)
+- Testing and deployment workflows
+- Explicit constraints agents must not violate
+- Important files index
+
+Use `.hermes/templates/PROJECT_MANIFEST_TEMPLATE.md` when bootstrapping a new repository.
+
 ### README.md (required)
 
 Beginner-facing. Must follow this structure unless a different structure is objectively better for the project type:

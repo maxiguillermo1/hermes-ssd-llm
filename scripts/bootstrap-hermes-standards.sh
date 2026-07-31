@@ -64,7 +64,7 @@ for f in README.md ENGINEERING_CONSTITUTION.md DOCUMENTATION_STANDARD.md PROJECT
 done
 
 # Templates
-for f in templates/README_TEMPLATE.md templates/TECHNICAL_TEMPLATE.md; do
+for f in templates/README_TEMPLATE.md templates/TECHNICAL_TEMPLATE.md templates/PROJECT_MANIFEST_TEMPLATE.md; do
     copy_file "${f}"
 done
 
@@ -86,4 +86,5 @@ echo "  1. Customize .hermes/PROJECT_STANDARDS.md for this repository"
 echo "  2. Customize .hermes/ARCHITECTURE_PRINCIPLES.md for this repository"
 echo "  3. Audit and rewrite README.md per .hermes/DOCUMENTATION_STANDARD.md"
 echo "  4. Create TECHNICAL.md if the project is non-trivial"
-echo "  5. Reference .hermes/ in AGENTS.md or CONTRIBUTING.md"
+echo "  5. Create PROJECT_MANIFEST.md from .hermes/templates/PROJECT_MANIFEST_TEMPLATE.md"
+echo "  6. Reference .hermes/ in AGENTS.md or CONTRIBUTING.md"
