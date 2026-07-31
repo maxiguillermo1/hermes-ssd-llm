@@ -290,4 +290,4 @@ By contributing, you agree that your contributions will be licensed under the sa
 
 ---
 
-*Governed by CONSTITUTION.md v1.0 · Hermes SSD LLM v0.3.1*
+*Governed by CONSTITUTION.md v1.0 · Hermes SSD LLM v0.3.5*

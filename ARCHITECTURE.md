@@ -5,7 +5,7 @@ Living high-level architecture reference. Update this document when components, 
 For plain-language overview: [README.md](README.md)  
 For deep technical detail and ADRs: [TECHNICAL.md](TECHNICAL.md)
 
-**Last reviewed:** 2026-07-30 · v0.3.4
+**Last reviewed:** 2026-07-30 · v0.3.5
 
 ---
 
@@ -47,11 +47,12 @@ Hermes SSD LLM is a macOS **SSD storage router and launcher** with an **optional
 │         │                           └─────────────┘                  │
 │         │                                                             │
 │  ┌──────┴──────────────────────────────────────────────────────┐     │
-│  │              hermes-ssd-llm (inference CLI)                  │     │
+│  │     Advanced: local inference engine (library — see ADVANCED)  │     │
 │  │  ┌────────┐  ┌────────┐  ┌────────┐  ┌────────┐  ┌───────┐ │     │
 │  │  │ model  │─▶│  ssd   │─▶│ metal  │─▶│inference│─▶│  api  │ │     │
 │  │  │ (GGUF) │  │ (mmap) │  │ (GPU)  │  │(engine) │  │(HTTP) │ │     │
 │  │  └────────┘  └────────┘  └────────┘  └────────┘  └───────┘ │     │
+│  │  Not wired to `hermes ssd` launch; bench/serve CLI planned    │     │
 │  └───────────────────────────────────────────────────────────────┘     │
 │                                                                         │
 │  ┌─────────────┐   ┌─────────────┐   ┌─────────────┐                  │
@@ -79,11 +80,11 @@ Hermes SSD LLM is a macOS **SSD storage router and launcher** with an **optional
 | **Locks** | `locks/` | PID session lock; unclean shutdown detection |
 | **Reset** | `reset/` | Scoped cleanup with path safety validation |
 | **Diagnostics** | `diagnostics/` | Doctor report generation and printing |
-| **Model** | `model/` | GGUF parsing, layer metadata, LRU cache |
-| **SSD** | `ssd/` | mmap pool, prefetch, block swap, memory pressure |
-| **Metal** | `metal/` | GPU compute kernels (matmul, attention, RoPE) |
-| **Inference** | `inference/` | Transformer forward pass, KV cache, sampling |
-| **API** | `api/` | OpenAI/Ollama-compatible HTTP server |
+| **Model** | `model/` | GGUF parsing, layer metadata, LRU cache (advanced) |
+| **SSD** | `ssd/` | mmap pool, prefetch, block swap (advanced) |
+| **Metal** | `metal/` | GPU compute kernels (advanced) |
+| **Inference** | `inference/` | Transformer forward pass, KV cache (advanced) |
+| **API** | `api/` | OpenAI/Ollama HTTP server library (advanced; no `serve` CLI yet) |
 | **Errors** | `errors/` | Typed errors with exit codes |
 
 ---
@@ -105,11 +106,13 @@ Triggered by: `hermes` (no `ssd` argument)
 
 No validation. No env mutation. Direct exec to `hermes.real`.
 
-### Mode C — Local inference CLI (optional)
+### Mode C — Local inference engine (advanced, not daily path)
 
-Triggered by: `hermes-ssd-llm` CLI (bench, serve)
+**Status:** Library code in repo; `hermes-ssd-llm info` / `models` shipped; `bench` / `serve` CLI planned.
 
-GGUF models streamed from SSD with Metal GPU acceleration. Not auto-launched by `hermes ssd`. SSD placement reduces internal-drive use, not inference RAM.
+GGUF models can be streamed from SSD with Metal GPU acceleration when the integrated server is used. Today, use `llama.cpp` or Ollama + Hermes custom provider, or explore via `cargo bench --bench inference_bench`. See [ADVANCED.md](ADVANCED.md) and [ROADMAP.md](ROADMAP.md).
+
+SSD placement reduces internal-drive use, not inference RAM.
 
 ## Credentials
 
@@ -216,6 +219,7 @@ flowchart LR
 |------|--------|
 | 2026-07-30 | Added `bootstrap.rs` for SSD home seeding |
 | 2026-07-30 | Documentation rewrite (README, TECHNICAL, ARCHITECTURE, CONTRIBUTING) |
+| 2026-07-30 | Added ROADMAP.md / ADVANCED.md; marked inference engine as library-only |
 | 2026-07-30 | Documentation accuracy pass: provider vs local modes, credentials honesty |
 
 ---

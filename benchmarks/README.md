@@ -34,10 +34,12 @@ This produces:
 
 ## Local inference benchmarks
 
-If a compatible GGUF model is present on the SSD:
+The integrated `hermes-ssd-llm bench` CLI is **not shipped yet** (see [ROADMAP.md](../ROADMAP.md)).
+
+Developer Criterion bench:
 
 ```bash
-hermes-ssd-llm bench /path/to/model.gguf --json
+cargo bench --bench inference_bench
 ```
 
-Local inference numbers are **not** included unless you run this separately and document the model file, quantization, and settings.
+Local inference throughput numbers are **not** included in committed `BENCHMARKS.md` unless you run and document them separately with model file, quantization, and settings.

@@ -13,14 +13,14 @@
 |-------|-------|
 | **Name** | Hermes SSD LLM |
 | **Domain** | macOS storage routing + optional local GGUF inference for Hermes Agent |
-| **Status** | Active (v0.3.x) |
+| **Status** | Active (v0.3.5) |
 | **License** | MIT — Copyright (c) 2026 Maxi Guillermo |
 
 ---
 
 ## What this project does
 
-Routes Hermes Agent data (models, caches, logs, builds, temp files) to a verified external SSD so the MacBook stays lightweight. Optionally runs local GGUF inference from SSD-backed weights. Never silently falls back to internal storage in SSD mode.
+Routes Hermes Agent data (caches, logs, builds, temp files, Hermes home) to a verified external SSD so the MacBook stays lightweight. **Shipped product:** storage routing + launcher. **Optional future:** integrated local GGUF inference from SSD-backed weights. Never silently falls back to internal storage in SSD mode.
 
 ---
 
@@ -41,7 +41,7 @@ Routes Hermes Agent data (models, caches, logs, builds, temp files) to a verifie
 ```text
 src/
   bin/hermes.rs           # Dispatcher: hermes / hermes ssd
-  bin/hermes_ssd_llm.rs   # Doctor, register, inference CLI
+  bin/hermes_ssd_llm.rs   # Doctor, register, info, models
   cli/ config/ device/ environment/ launcher/ locks/
   reset/ paths/ diagnostics/ ssd/ metal/ inference/
 .hermes/                  # Engineering + documentation policies (read first)
@@ -70,7 +70,7 @@ benchmarks/               # Measured performance scripts + results
 1. User runs `hermes ssd` → CLI validates registered volume (UUID, space, mount, RW).
 2. `environment` builds routed env vars (`HERMES_HOME`, `TMPDIR`, `HF_HOME`, etc.).
 3. `launcher` execs upstream `hermes.real` with routed environment.
-4. Optional: `hermes-ssd-llm` runs GGUF inference with SSD mmap + Metal GPU.
+4. Optional (advanced): inference engine in `src/inference/` — library only; see [ADVANCED.md](ADVANCED.md)
 
 **Canonical detail:** [ARCHITECTURE.md](ARCHITECTURE.md) · [TECHNICAL.md](TECHNICAL.md)
 
@@ -80,9 +80,9 @@ benchmarks/               # Measured performance scripts + results
 
 | Item | Location |
 |------|----------|
-| **Config** | `<SSD>/Hermes-SSD-LLM/config.toml` (after registration) |
-| **User / runtime data** | Under verified `Hermes-SSD-LLM/` on registered volume |
-| **Secrets** | Never commit; bootstrap copies `~/.hermes/.env` to SSD home only when missing |
+| **Host config** | `~/.config/hermes-ssd-llm/config.toml` (volume UUID, thresholds) |
+| **SSD data** | `<mount>/Hermes-SSD-LLM/` after registration |
+| **Secrets** | `HERMES_HOME/.env` and `auth.json` — on SSD after redirect unless symlinked |
 
 ---
 
@@ -148,3 +148,5 @@ Benchmarks: measured results only in `BENCHMARKS.md` — run `generate-report.sh
 | **Contributor** | [CONTRIBUTING.md](CONTRIBUTING.md) |
 | **Engineer** | [TECHNICAL.md](TECHNICAL.md) |
 | **Agent** | This file |
+| **Roadmap** | [ROADMAP.md](ROADMAP.md) |
+| **Advanced inference** | [ADVANCED.md](ADVANCED.md) |

@@ -133,24 +133,22 @@ hermes ssd reset           # Clean temporary/runtime files on the SSD
 
 ## What Lives On The SSD
 
-Everything below is stored under `<SSD>/Hermes-SSD-LLM/`.
+Everything below is stored under `<SSD>/Hermes-SSD-LLM/`. Only paths the launcher actually routes are listed here — not every folder name in the layout.
 
-| Item | What it is |
-|------|------------|
-| **Projects** | Your code repositories and workspaces |
-| **Models** (optional) | Local GGUF files — only when you use local inference; empty with cloud providers |
-| **Logs** | Records of what Hermes and tools did, useful for debugging |
-| **Caches** | Downloaded files kept for speed so they are not re-downloaded |
-| **Databases** | Structured data Hermes uses to remember sessions and settings |
-| **Embeddings** | Numerical representations of text used for search and memory |
-| **Indexes** | Fast lookup tables built from your data |
-| **Configuration** | Runtime settings for the SSD environment |
-| **Temporary files** | Short-lived files created during work, cleaned up automatically |
-| **Vector databases** | Specialized storage for AI similarity search |
-| **Memory** | Hermes session memory and conversation history |
-| **Backups** | Copies of important data for recovery |
-| **Git repositories** | Version-controlled project folders |
-| **Benchmarks** | Performance test results for this setup |
+| Item | SSD path | What it is |
+|------|----------|------------|
+| **Hermes data** | `data/hermes/` | Profiles, sessions, memories, skills, `config.yaml`, `state.db` (`HERMES_HOME`) |
+| **Workspaces** | `workspaces/` | Active project folders (suggested location; not auto-routed beyond env vars) |
+| **Repositories** | `repositories/` | Suggested location for Git clones |
+| **Models** (optional) | `models/gguf/` | Local GGUF files — only when you use local inference; empty with cloud providers |
+| **Caches** | `cache/` | HuggingFace, transformers, Rust build artifacts (`HF_HOME`, `CARGO_TARGET_DIR`, etc.) |
+| **Logs** | `logs/` | Launcher and application logs |
+| **Temporary files** | `tmp/` | Short-lived files (`TMPDIR`), cleaned by reset |
+| **Runtime state** | `runtime/` | Session locks, sockets, unclean-shutdown flags |
+| **Backups** | `backups/` | User-managed backup folder (reset manifests land here; no auto cloud backup) |
+| **Benchmarks** | `benchmarks/` | Local benchmark output from `./benchmarks/scripts/` |
+
+Host registration config stays on the Mac: `~/.config/hermes-ssd-llm/config.toml` (volume UUID — so the installer knows which drive to expect when the SSD is unplugged).
 
 **Credentials:** Hermes stores API keys and OAuth tokens in `HERMES_HOME/.env` and `HERMES_HOME/auth.json`. Because SSD mode redirects `HERMES_HOME` to the external drive, **secrets may live on the SSD** after bootstrap — they are not automatically kept only in macOS Keychain. Review placement after first launch; see [SECURITY.md](SECURITY.md).
 
@@ -232,13 +230,13 @@ Hermes refuses to start and shows a clear error. It will never silently use inte
 
 ---
 
-## Future Roadmap
+## Roadmap
 
-- Deeper integration between SSD mode and local model inference
-- APFS support optimizations for macOS-native drives
-- Automated backup workflows
-- GUI status indicator for SSD health
-- Multi-SSD profiles for different project contexts
+**Shipped today:** SSD validation, path routing, bootstrap, `hermes ssd doctor`, and scoped reset. Cloud-provider inference is the default path.
+
+**Future / advanced** (in repo but not the daily workflow): integrated `bench`/`serve` CLI, auto local model startup, Keychain credential options, APFS optimizations, GUI health indicator, multi-SSD profiles.
+
+Full breakdown: [ROADMAP.md](ROADMAP.md) · Developer inference notes: [ADVANCED.md](ADVANCED.md)
 
 ---
 
@@ -250,6 +248,8 @@ Hermes refuses to start and shows a clear error. It will never silently use inte
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Living system overview with diagrams |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Contributors — code style, testing, PR guidelines |
 | [BENCHMARKS.md](BENCHMARKS.md) | Measured performance on the test system |
+| [ROADMAP.md](ROADMAP.md) | Shipped features vs future work |
+| [ADVANCED.md](ADVANCED.md) | Optional local GGUF engine (developers) |
 | [SECURITY.md](SECURITY.md) | Security model and path safety |
 
 ---

@@ -2,14 +2,14 @@
 
 All numbers on this page were **measured on the detected test system** (2026-07-30). They apply to that Mac and SanDisk SSD only.
 
-> Hermes SSD LLM is primarily an SSD storage router for Hermes Agent. For **provider mode**, inference runs remotely; SSD mode moves Hermes state and caches off the internal drive. For **local LLM mode**, optional SSD streaming may reduce peak unified-memory use during inference, but model weights are still loaded into RAM at runtime.
+> Hermes SSD LLM is primarily an SSD storage router for Hermes Agent. For **provider mode**, inference runs remotely; SSD mode moves Hermes state and caches off the internal drive. For **local LLM mode**, storing a GGUF on the SSD saves internal-drive space but does **not** reduce RAM required at inference time.
 
 ## Test system
 
 | Field | Measured value |
 |-------|----------------|
 | Date | 2026-07-30 |
-| Project version | 0.3.1 |
+| Project version | 0.3.5 |
 | Git commit | `4bc9a13` |
 | Mac model | MacBook Air (Mac14,2) |
 | Chip | Apple M2 (8 cores) |
@@ -22,7 +22,7 @@ All numbers on this page were **measured on the detected test system** (2026-07-
 | SSD capacity | 1863 GB (decimal, formatted) |
 | SSD available | 1832 GB (at capture) |
 | Hermes | v0.19.0 |
-| Hermes SSD LLM | 0.3.1 |
+| Hermes SSD LLM | 0.3.5 |
 | Rust | 1.97.1 |
 
 Full sanitized report: `benchmarks/results/current-system.md`  
@@ -85,11 +85,15 @@ Short-lived process RSS only; `powermetrics` not used (requires privileges).
 
 ## Local inference
 
-Not run in this refresh (no GGUF model on SSD at benchmark time). When a model is available:
+Not run in this refresh (no GGUF model on SSD at benchmark time). The integrated `hermes-ssd-llm bench` CLI is **not shipped yet** (see [ROADMAP.md](ROADMAP.md)).
+
+Developer micro-benchmarks:
 
 ```bash
-hermes-ssd-llm bench /path/to/model.gguf --json
+cargo bench --bench inference_bench
 ```
+
+For end-to-end local inference today, use `llama.cpp` or Ollama and document your own numbers.
 
 ## Remote providers
 

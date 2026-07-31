@@ -1,5 +1,23 @@
 # Changelog
 
+## v0.3.5 — Shipped vs roadmap clarity (2026-07-30)
+
+### Added
+
+- **`ROADMAP.md`** — separates shipped launcher features from planned work
+- **`ADVANCED.md`** — developer guide for in-repo inference engine (not daily workflow)
+
+### Changed
+
+- **README.md** — accurate SSD contents table; removed misleading embeddings/indexes/vector-db rows; roadmap links
+- **ARCHITECTURE.md** — inference engine labeled as advanced library; Mode C corrected
+- **TECHNICAL.md** — scope table; CLI split into shipped vs planned; version 0.3.5
+- **BENCHMARKS.md** — fixed RAM claim; removed nonexistent `hermes-ssd-llm bench` command
+- **PROJECT_MANIFEST.md** — fixed host config path; shipped vs advanced split
+- **AGENTS.md**, **benchmarks/README.md** — aligned with roadmap
+
+---
+
 ## v0.3.4 — Documentation accuracy (2026-07-30)
 
 ### Changed

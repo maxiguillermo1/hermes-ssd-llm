@@ -31,7 +31,7 @@ Never change the Hermes TUI, provider flow, or require manual env exports for no
 ```text
 src/
   bin/hermes.rs           # Dispatcher (hermes / hermes ssd)
-  bin/hermes_ssd_llm.rs     # Doctor, register, inference CLI
+  bin/hermes_ssd_llm.rs     # Doctor, register, info, models (advanced inference lib separate)
   cli/                      # SSD subcommand routing
   config/                   # TOML config + migration
   device/                   # Volume discovery (diskutil)
@@ -41,8 +41,10 @@ src/
   reset/                    # Safe scoped reset
   paths/                    # SSD directory layout
   diagnostics/              # Doctor command
-  ssd/, metal/, inference/  # Local GGUF inference engine
+  ssd/, metal/, inference/  # Advanced: local GGUF engine (library; not daily path)
 ```
+
+See [ROADMAP.md](ROADMAP.md) and [ADVANCED.md](ADVANCED.md) before documenting or exposing inference CLI commands.
 
 ## Safety rules
 
@@ -71,6 +73,8 @@ Follow `.hermes/DOCUMENTATION_STANDARD.md` for structure and quality. Keep in sy
 - `ARCHITECTURE.md` — living component map (update when boundaries change)
 - `CONTRIBUTING.md` — contributor workflow and quality gates
 - `BENCHMARKS.md` — measured results only (no estimates)
+- `ROADMAP.md` — shipped vs planned features
+- `ADVANCED.md` — local inference engine (developers)
 - `CHANGELOG.md` — every release
 - `MIGRATION.md` — naming and reset history
 

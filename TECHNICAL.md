@@ -2,9 +2,19 @@
 
 This document is the authoritative technical reference for senior software engineers working on or integrating with Hermes SSD LLM. For a plain-language overview, see [README.md](README.md). For a living component map, see [ARCHITECTURE.md](ARCHITECTURE.md).
 
-**Version:** 0.3.1  
+**Version:** 0.3.5  
 **Edition:** 2021 (Rust)  
 **Platform:** macOS (Apple Silicon primary target)
+
+### Scope
+
+| Layer | Status |
+|-------|--------|
+| **Primary product** | `hermes ssd` — SSD validation, env routing, bootstrap, launch `hermes.real` |
+| **Admin CLI** | `hermes ssd doctor/reset`, `hermes-ssd-llm doctor/register/info/models` |
+| **Advanced (in repo)** | Local GGUF inference engine (`inference/`, `metal/`, `api/`) — library code, not wired to daily launch. See [ADVANCED.md](ADVANCED.md) and [ROADMAP.md](ROADMAP.md). |
+
+Sections on model management, memory management, and inference flows below describe the **advanced engine**, not what runs when you type `hermes ssd` with a cloud provider.
 
 ---
 
@@ -57,9 +67,9 @@ This document is the authoritative technical reference for senior software engin
 
 Hermes SSD LLM is a Rust crate (`hermes-ssd-llm`) that provides:
 
-1. **Storage routing layer** — validates an external SSD and redirects Hermes Agent data paths
-2. **Launcher wrapper** — dispatches `hermes` vs `hermes ssd` without modifying upstream Hermes
-3. **Local inference engine** — optional GGUF streaming runtime with Metal GPU acceleration
+1. **Storage routing layer** — validates an external SSD and redirects Hermes Agent data paths *(shipped)*
+2. **Launcher wrapper** — dispatches `hermes` vs `hermes ssd` without modifying upstream Hermes *(shipped)*
+3. **Local inference engine** — optional GGUF streaming runtime with Metal GPU acceleration *(library in repo; CLI `bench`/`serve` not exposed yet)*
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -84,7 +94,7 @@ Hermes SSD LLM is a Rust crate (`hermes-ssd-llm`) that provides:
                                          │ (Hermes Agent)  │
                                          └─────────────────┘
 
-Optional parallel path:
+Optional parallel path (advanced — not auto-started by `hermes ssd`):
 ┌──────────────────┐    ┌─────────┐    ┌────────┐    ┌──────────┐
 │ hermes-ssd-llm   │───▶│ model/  │───▶│ ssd/   │───▶│ metal/   │
 │ (inference CLI)  │    │ (GGUF)  │    │ mmap   │    │ GPU ops  │
@@ -142,7 +152,7 @@ hermes-ssd-llm/
 | Binary | Path | Role |
 |--------|------|------|
 | `hermes` | `src/bin/hermes.rs` | Dispatcher: passthrough or `ssd` subcommand |
-| `hermes-ssd-llm` | `src/bin/hermes_ssd_llm.rs` | Doctor, register, bench, inference server |
+| `hermes-ssd-llm` | `src/bin/hermes_ssd_llm.rs` | Doctor, register, launch, info, models |
 
 Install script places both in `~/.local/bin/` and preserves upstream Hermes at `~/.local/bin/hermes.real`.
 
@@ -450,7 +460,7 @@ Release profile: `opt-level = 3`, `lto = true`, `codegen-units = 1`.
 - Parser: `model/gguf.rs`
 - Loader: `model/loader.rs` with memory-mapped layer access
 - Download: `pull/` module for fetching models
-- CLI: `hermes-ssd-llm bench <model.gguf>` for performance measurement
+- CLI: `hermes-ssd-llm info` / `models` shipped; `bench` planned (see [ROADMAP.md](ROADMAP.md))
 
 ---
 
@@ -544,6 +554,8 @@ See [Health Checking Pipeline](#health-checking-pipeline). Reset adds:
 
 ## CLI Architecture
 
+### Shipped commands
+
 ```
 hermes                          → passthrough to hermes.real
 hermes ssd                      → launch SSD mode
@@ -556,9 +568,20 @@ hermes ssd reset --all-managed-data
 hermes ssd help
 
 hermes-ssd-llm doctor           → standalone doctor
+hermes-ssd-llm register <mount> → register SSD volume
+hermes-ssd-llm launch [args]    → launch Hermes with SSD env (tests/install)
+hermes-ssd-llm info <model>     → GGUF metadata
+hermes-ssd-llm models [--dir]   → list GGUF files
+```
+
+### Planned (roadmap — not in binary yet)
+
+```
 hermes-ssd-llm bench <model>    → inference benchmark
 hermes-ssd-llm serve            → OpenAI-compatible API server
 ```
+
+Until these ship, use `cargo bench --bench inference_bench` for micro-benchmarks or `llama.cpp` for real local inference. See [ADVANCED.md](ADVANCED.md).
 
 ---
 
@@ -716,7 +739,7 @@ cargo test --lib --tests
 cargo build --release
 ```
 
-487 unit tests pass (as of v0.3.1). Two pre-existing doctest failures in inference docs are cosmetic.
+487 unit tests pass (as of v0.3.5). Two pre-existing doctest failures in inference docs are cosmetic.
 
 ---
 
@@ -808,7 +831,7 @@ Rejected: GPU passthrough complexity on macOS, additional memory overhead, not p
 - 8 GB unified memory limits local model size even with streaming
 - USB bandwidth ceiling below internal NVMe
 - macOS only (uses `diskutil`, Metal)
-- Inference engine not yet fully wired to `hermes ssd` launch path
+- Inference engine not wired to `hermes ssd` launch path; `bench` / `serve` CLI not exposed
 - Doctest failures in inference module docs (cosmetic)
 
 ---
@@ -952,4 +975,4 @@ All work follows the [Engineering Constitution](CONSTITUTION.md):
 
 ---
 
-*Last updated: 2026-07-30 · Hermes SSD LLM v0.3.1*
+*Last updated: 2026-07-30 · Hermes SSD LLM v0.3.5*

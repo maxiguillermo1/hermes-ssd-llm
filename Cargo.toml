@@ -1,6 +1,6 @@
 [package]
 name = "hermes-ssd-llm"
-version = "0.3.4"
+version = "0.3.5"
 edition = "2021"
 description = "External-storage runtime and launcher for Hermes Agent on Apple Silicon, with optional local GGUF inference"
 license = "MIT"
