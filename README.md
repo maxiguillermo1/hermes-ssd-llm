@@ -1,8 +1,10 @@
 # Hermes SSD LLM
 
-Hermes SSD LLM turns a portable external drive into a dedicated home for AI work. Instead of filling your MacBook with large models, caches, logs, and project files, everything heavy lives on the SSD. Plug it in, run one command, and your full AI environment is ready. Unplug it, and your MacBook stays clean.
+Hermes SSD LLM is an **external-storage runtime and launcher** for [Hermes Agent](https://hermes-agent.nousresearch.com/). It redirects Hermes-controlled data — sessions, memories, skills, caches, logs, and projects — to a portable SSD so your MacBook's internal storage stays free. Plug in the drive, run one command, and Hermes launches with SSD-backed paths.
 
-This project is for anyone who wants to use [Hermes Agent](https://hermes-agent.nousresearch.com/) — an AI assistant you run from the terminal — without letting AI data consume their laptop's limited internal storage.
+**Important:** This is primarily a **storage router**, not an automatic local GGUF LLM system. Hermes still uses whichever model provider you configure. Cloud providers perform inference remotely; local GGUF inference is an optional, advanced mode.
+
+This project is for anyone who wants to use Hermes — an AI assistant you run from the terminal — without letting Hermes data consume their laptop's limited internal storage.
 
 ---
 
@@ -22,12 +24,14 @@ Hermes SSD LLM makes a portable SSD (Solid State Drive — a small, fast externa
 
 When you run SSD mode:
 
-- Your MacBook stays lightweight. Internal storage is not used for AI data.
-- The SSD stores everything related to AI development — models, caches, logs, projects, and more.
-- Your environment is portable. Move the SSD to another Mac and your setup comes with you.
-- Plugging in the SSD and running one command restores the complete environment instantly.
+- Your MacBook stays lighter. Hermes-controlled data and scoped caches move to the SSD instead of internal storage.
+- The SSD stores Hermes state, projects, logs, caches, and **optional** local model files.
+- Your environment is portable. Move the SSD to another Mac and your Hermes data can come with you.
+- Plugging in the SSD and running one command restores the SSD-backed environment.
 
-Hermes itself — the AI assistant you talk to — works exactly the same. SSD mode only changes where files are stored, not how Hermes behaves.
+Hermes itself — the AI assistant you talk to — works exactly the same. SSD mode changes where Hermes stores files, not how the TUI, skills, or tools behave.
+
+**What supplies the AI brain?** The model provider configured inside Hermes (`hermes model`). In the most common setup, that is a cloud provider (Cursor, OpenRouter, Anthropic, etc.) — inference runs remotely and no GGUF file is required. Local GGUF + `llama.cpp` is optional; see [Provider vs local inference](#provider-vs-local-inference) below.
 
 ---
 
@@ -95,7 +99,27 @@ Environment variables (settings that tell programs where to save files) point al
 
 ### 6. Hermes launches
 
-The real Hermes Agent starts with your usual interface, skills, and tools. You use it normally.
+The real Hermes Agent starts with your usual interface, skills, and tools. You use it normally. Hermes reads your configured provider and that provider performs inference.
+
+### Provider vs local inference
+
+```text
+hermes ssd
+    ↓
+Rust launcher verifies the registered SSD
+    ↓
+Redirects Hermes storage (HERMES_HOME, caches, temp, logs)
+    ↓
+Launches Hermes Agent
+    ↓
+Selected provider performs inference
+```
+
+**Mode 1 — Provider mode (most common):** Hermes talks to a cloud or hosted provider. Your Mac runs Hermes; the provider's servers run the model. No GGUF on the SSD is required; `models/` may be empty.
+
+**Mode 2 — Local LLM mode (optional):** You configure a local OpenAI-compatible endpoint (for example `llama.cpp` serving a GGUF from the SSD). Your Mac performs inference. Storing a GGUF on the SSD saves **internal-drive space**, not **RAM** — weights are still loaded into unified memory while running.
+
+See [Hermes AI Providers](https://hermes-agent.nousresearch.com/docs/integrations/providers) and `BENCHMARKS.md`.
 
 ### Other useful commands
 
@@ -114,7 +138,7 @@ Everything below is stored under `<SSD>/Hermes-SSD-LLM/`.
 | Item | What it is |
 |------|------------|
 | **Projects** | Your code repositories and workspaces |
-| **Models** | AI model files (GGUF format — compressed files that contain an AI brain) |
+| **Models** (optional) | Local GGUF files — only when you use local inference; empty with cloud providers |
 | **Logs** | Records of what Hermes and tools did, useful for debugging |
 | **Caches** | Downloaded files kept for speed so they are not re-downloaded |
 | **Databases** | Structured data Hermes uses to remember sessions and settings |
@@ -128,7 +152,9 @@ Everything below is stored under `<SSD>/Hermes-SSD-LLM/`.
 | **Git repositories** | Version-controlled project folders |
 | **Benchmarks** | Performance test results for this setup |
 
-Your passwords and API keys stay in macOS Keychain on the MacBook — they are **not** copied to the SSD.
+**Credentials:** Hermes stores API keys and OAuth tokens in `HERMES_HOME/.env` and `HERMES_HOME/auth.json`. Because SSD mode redirects `HERMES_HOME` to the external drive, **secrets may live on the SSD** after bootstrap — they are not automatically kept only in macOS Keychain. Review placement after first launch; see [SECURITY.md](SECURITY.md).
+
+**Not on the SSD:** Hermes executables (`hermes`, `hermes.real`), macOS system files, and tools that ignore redirected environment variables may still use internal storage.
 
 ---
 
@@ -138,10 +164,12 @@ Your passwords and API keys stay in macOS Keychain on the MacBook — they are *
 
 For Hermes SSD LLM specifically:
 
-- **Memory efficiency** matters on an 8 GB Mac. Rust gives precise control over how much RAM the launcher and inference engine use.
-- **Reliability** matters when handling large files and GPU work. Rust catches many bugs at compile time instead of at runtime.
-- **Performance** matters when streaming multi-gigabyte model layers from an SSD. Rust compiles to native machine code with no garbage-collection pauses.
+- **Lightweight launcher** matters on an 8 GB Mac. Rust keeps the SSD validator, path router, lock manager, and process launcher small and reliable.
+- **Reliability** matters when handling large files and optional GPU work. Rust catches many bugs at compile time instead of at runtime.
+- **Performance** matters when streaming multi-gigabyte model layers from an SSD in **optional local inference mode**. Rust compiles to native machine code with no garbage-collection pauses.
 - **Safety** matters for a tool that validates drives, manages locks, and launches other programs. Rust's ownership system prevents common crashes and data races.
+
+Rust does **not** replace your configured Hermes provider. When using cloud providers, inference happens remotely. When using local GGUF, `llama.cpp` or the bundled streaming engine performs inference.
 
 ---
 
@@ -180,7 +208,7 @@ AI models alone can be 4–70+ GB each. Caches, logs, and build artifacts add mo
 
 **Will this make my MacBook faster?**
 
-It frees internal storage and reduces memory pressure from large local models. Your MacBook will feel less cramped. Actual AI response speed depends on whether you use remote providers (cloud) or local models (on your machine).
+It frees **internal storage** by moving Hermes data and scoped caches to the SSD. That can make the laptop feel less cramped. It does **not** reduce RAM needed for local model inference — a GGUF on the SSD is still loaded into unified memory at runtime. With cloud providers, inference runs on the provider's hardware, not your Mac.
 
 **Can I unplug the SSD?**
 
@@ -188,7 +216,7 @@ Not while Hermes is running. Unplugging during active work will cause errors. Qu
 
 **Can I move to another Mac?**
 
-Yes. Install Hermes SSD LLM on the new Mac, plug in the same SSD, and run `hermes ssd`. Your data and configuration travel with the drive.
+Your Hermes data and optional models can travel with the SSD, but the new Mac still needs Hermes Agent, this launcher (`./install.sh`), provider authentication, and (for local models) a backend such as `llama.cpp`. Portable data — not necessarily plug-and-run on an unprepared machine.
 
 **Can I upgrade the SSD later?**
 

@@ -1,8 +1,8 @@
 [package]
 name = "hermes-ssd-llm"
-version = "0.3.1"
+version = "0.3.4"
 edition = "2021"
-description = "Rust SSD-backed Hermes Agent launcher with local GGUF inference for Apple Silicon"
+description = "External-storage runtime and launcher for Hermes Agent on Apple Silicon, with optional local GGUF inference"
 license = "MIT"
 repository = "https://github.com/maxiguillermo1/hermes-ssd-llm"
 keywords = ["hermes-agent", "llm", "apple-silicon", "inference", "ssd", "mmap"]

@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.3.4 — Documentation accuracy (2026-07-30)
+
+### Changed
+
+- **README.md** — reframed as SSD storage router/launcher; added provider vs local inference; corrected Keychain, RAM, and portability claims while keeping plain-English structure
+- **ARCHITECTURE.md** — provider/local mode split; honest credential placement via `HERMES_HOME` redirect
+- **SECURITY.md** — documents `.env` / `auth.json` on SSD
+- **MIGRATION.md** — clarified credential storage on reset
+- **BENCHMARKS.md** — disambiguated provider-mode vs local-inference scope
+- **TECHNICAL.md** — corrected credential placement via `HERMES_HOME` redirect
+
+---
+
 ## v0.3.3 — Documentation standardization initiative (2026-07-30)
 
 ### Added

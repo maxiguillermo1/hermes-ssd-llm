@@ -300,7 +300,7 @@ sequenceDiagram
 | `HERMES_SSD_LLM_MOUNT` | mount point | Active volume path |
 | `HERMES_SSD_LLM_ROOT` | root path | Hermes-SSD-LLM root |
 
-Credentials (Keychain, upstream auth) are **not** redirected.
+`HERMES_HOME` redirect places Hermes config and secrets (`.env`, `auth.json`) on the SSD unless you symlink them from the Mac. This project does not implement Keychain-only credential storage by default.
 
 ---
 

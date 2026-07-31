@@ -53,7 +53,9 @@ Full project-managed SSD data:
 hermes ssd reset --all-managed-data
 ```
 
-**Always preserved:** `~/.config/hermes-ssd-llm/config.toml` (volume UUID), credentials, Git history, source code.
+**Always preserved on reset:** `~/.config/hermes-ssd-llm/config.toml` (volume UUID), Git history, source code.
+
+**Note:** Credentials in SSD `HERMES_HOME` (`.env`, `auth.json`) are data on the external drive, not a separate Keychain-only store.
 
 ## Benchmark refresh (v0.3.0)
 

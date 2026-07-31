@@ -12,9 +12,20 @@ It does not handle remote authentication itself — that remains in upstream Her
 
 ## Secrets and credentials
 
-- API keys, tokens, and passwords stay in Keychain and upstream Hermes config
-- SSD mode does **not** redirect credential stores to the external drive
-- Doctor output redacts env vars matching `TOKEN`, `SECRET`, `PASSWORD`, `API_KEY`
+Hermes upstream stores secrets in:
+
+```text
+HERMES_HOME/.env
+HERMES_HOME/auth.json
+```
+
+SSD mode redirects `HERMES_HOME` to `<SSD>/Hermes-SSD-LLM/data/hermes`. Therefore:
+
+- API keys, OAuth tokens, and provider credentials **may be written to the external SSD** after first launch or bootstrap seeding from `~/.hermes`
+- This project does **not** provide macOS Keychain integration by default
+- Options: accept secrets on SSD (default bootstrap), symlink `.env`/`auth.json` from the Mac, or implement explicit Keychain integration
+
+Doctor output redacts env vars matching `TOKEN`, `SECRET`, `PASSWORD`, `API_KEY`
 - Volume UUID is shown in local `doctor` output for registration verification only — public docs and committed reports use `REDACTED`
 - Never commit `.env`, `config.toml` with live UUIDs, or raw hardware captures
 

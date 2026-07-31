@@ -5,13 +5,13 @@ Living high-level architecture reference. Update this document when components, 
 For plain-language overview: [README.md](README.md)  
 For deep technical detail and ADRs: [TECHNICAL.md](TECHNICAL.md)
 
-**Last reviewed:** 2026-07-30 · v0.3.1
+**Last reviewed:** 2026-07-30 · v0.3.4
 
 ---
 
 ## Purpose
 
-Hermes SSD LLM is a macOS storage routing layer and optional local inference runtime for [Hermes Agent](https://hermes-agent.nousresearch.com/). It validates a registered external SSD, redirects data paths, and launches upstream Hermes unchanged.
+Hermes SSD LLM is a macOS **SSD storage router and launcher** with an **optional** local GGUF inference runtime for [Hermes Agent](https://hermes-agent.nousresearch.com/). It validates a registered external SSD, redirects Hermes-controlled paths, and launches upstream Hermes unchanged. Cloud providers still perform inference remotely unless you configure a local model endpoint.
 
 ---
 
@@ -94,7 +94,10 @@ Hermes SSD LLM is a macOS storage routing layer and optional local inference run
 
 Triggered by: `hermes ssd`
 
-All Hermes data, caches, temp files, and build artifacts route to the external SSD. Upstream Hermes runs unchanged.
+Hermes data, caches, temp files, and build artifacts route to the external SSD. Upstream Hermes runs unchanged. Inference is determined by the provider in SSD-based `config.yaml`:
+
+- **Provider mode (default for most users):** OpenRouter, Cursor, Anthropic, etc. — remote inference; `models/gguf` may be empty.
+- **Local LLM mode (optional):** Hermes points at a local OpenAI-compatible endpoint; GGUF on SSD + `llama.cpp` or `hermes-ssd-llm` CLI.
 
 ### Mode B — Normal passthrough
 
@@ -102,15 +105,15 @@ Triggered by: `hermes` (no `ssd` argument)
 
 No validation. No env mutation. Direct exec to `hermes.real`.
 
-### Mode C — Local inference (optional)
+### Mode C — Local inference CLI (optional)
 
 Triggered by: `hermes-ssd-llm` CLI (bench, serve)
 
-GGUF models streamed from SSD with Metal GPU acceleration. Not yet auto-launched by `hermes ssd`.
+GGUF models streamed from SSD with Metal GPU acceleration. Not auto-launched by `hermes ssd`. SSD placement reduces internal-drive use, not inference RAM.
 
-### Mode D — Remote provider
+## Credentials
 
-Hermes configured with Cursor, OpenAI, etc. SSD mode still routes local state; inference runs remotely.
+Hermes stores secrets in `HERMES_HOME/.env` and `HERMES_HOME/auth.json`. SSD mode redirects `HERMES_HOME` to `<SSD>/Hermes-SSD-LLM/data/hermes`, so **credentials may reside on the external SSD** after bootstrap. This project does not implement macOS Keychain integration by default. See `SECURITY.md`.
 
 ---
 
@@ -150,15 +153,15 @@ flowchart LR
 │  ~/.config/hermes-ssd-llm/config.toml  (0600)    │
 │  ~/.local/bin/hermes          (Rust dispatcher)   │
 │  ~/.local/bin/hermes.real     (upstream Hermes)   │
-│  Keychain / credentials                           │
+│  (optional) symlinks for secrets on internal disk │
 └───────────────────────────────────────────────────┘
                         │
                         │ USB
                         ▼
 ┌──────────────── External SSD ─────────────────────┐
 │  /Volumes/<name>/Hermes-SSD-LLM/                  │
-│    data/hermes/     ← HERMES_HOME                 │
-│    models/gguf/     ← AI models                   │
+│    data/hermes/     ← HERMES_HOME (.env, auth.json may live here) │
+│    models/gguf/     ← optional local models       │
 │    cache/           ← HF, Rust, Hermes caches     │
 │    tmp/             ← TMPDIR                      │
 │    logs/            ← Application logs            │
@@ -175,7 +178,7 @@ flowchart LR
 1. `allow_internal_fallback` is always `false` and rejected if set `true`
 2. SSD validation runs before every `hermes ssd` launch
 3. Reset only operates on paths under `<SSD>/Hermes-SSD-LLM/`
-4. Credentials never redirect to SSD
+4. `HERMES_HOME` redirect may place `.env` / `auth.json` on the SSD unless symlinked elsewhere
 5. One active SSD session per volume (PID lock)
 6. `hermes` passthrough never modifies environment
 
@@ -213,7 +216,7 @@ flowchart LR
 |------|--------|
 | 2026-07-30 | Added `bootstrap.rs` for SSD home seeding |
 | 2026-07-30 | Documentation rewrite (README, TECHNICAL, ARCHITECTURE, CONTRIBUTING) |
-| 2026-07-30 | Benchmarks refreshed on MacBook Air M2 + SanDisk Extreme 2TB |
+| 2026-07-30 | Documentation accuracy pass: provider vs local modes, credentials honesty |
 
 ---
 

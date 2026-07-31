@@ -2,7 +2,7 @@
 
 All numbers on this page were **measured on the detected test system** (2026-07-30). They apply to that Mac and SanDisk SSD only.
 
-> Hermes SSD LLM is not designed to beat in-RAM inference on tiny models. SSD mode reduces **internal-drive use** and **memory pressure** for large local models. Remote providers still run inference in the cloud.
+> Hermes SSD LLM is primarily an SSD storage router for Hermes Agent. For **provider mode**, inference runs remotely; SSD mode moves Hermes state and caches off the internal drive. For **local LLM mode**, optional SSD streaming may reduce peak unified-memory use during inference, but model weights are still loaded into RAM at runtime.
 
 ## Test system
 
