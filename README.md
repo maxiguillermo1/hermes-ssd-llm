@@ -1,80 +1,163 @@
 # Hermes SSD LLM
 
-**Rust 2021** project — SSD-backed storage routing and optional local GGUF inference for [Hermes Agent](https://hermes-agent.nousresearch.com/) on Apple Silicon.
+Hermes SSD LLM turns a portable external drive into a dedicated home for AI work. Instead of filling your MacBook with large models, caches, logs, and project files, everything heavy lives on the SSD. Plug it in, run one command, and your full AI environment is ready. Unplug it, and your MacBook stays clean.
 
-| Binary | Role |
-|--------|------|
-| `hermes` | Dispatcher: normal Hermes or `hermes ssd` |
-| `hermes-ssd-llm` | Doctor, SSD registration, GGUF utilities |
+This project is for anyone who wants to use [Hermes Agent](https://hermes-agent.nousresearch.com/) — an AI assistant you run from the terminal — without letting AI data consume their laptop's limited internal storage.
 
-## Status
+---
 
-v0.3.1 — production launcher with safe reset, hardware-aware benchmarks, SSD-streaming inference engine, and Engineering Constitution governance.
+## The Problem
 
-## Engineering standards
+My MacBook Air has only 8 GB of memory and 256 GB of internal storage.
 
-All work on this repository follows **`CONSTITUTION.md`** (Hermes SSD LLM Engineering Constitution v1.0). AI agents and contributors should also read **`AGENTS.md`** before making changes.
+AI work creates a lot of data. Large model files, download caches, conversation logs, databases, search indexes, temporary files, and Git repositories all add up quickly. On a small laptop, that data competes with everything else — photos, apps, system files, and macOS itself.
 
-## Two-action workflow
+I did not want my MacBook to become a permanent warehouse for AI files. I wanted a separate, portable workspace that behaves like a dedicated AI workstation — one I can plug in when I need it and leave behind when I do not.
 
-```text
-1. Connect the registered 2TB SanDisk Portable SSD.
-2. Run: hermes ssd
-```
+---
 
-Use Hermes normally. The TUI, providers, skills, and tools are unchanged.
+## The Solution
 
-Normal mode (internal paths):
+Hermes SSD LLM makes a portable SSD (Solid State Drive — a small, fast external hard drive with no moving parts) into that dedicated workspace.
 
-```bash
-hermes
-```
+When you run SSD mode:
 
-SSD-backed mode (verified external drive, no internal fallback):
+- Your MacBook stays lightweight. Internal storage is not used for AI data.
+- The SSD stores everything related to AI development — models, caches, logs, projects, and more.
+- Your environment is portable. Move the SSD to another Mac and your setup comes with you.
+- Plugging in the SSD and running one command restores the complete environment instantly.
+
+Hermes itself — the AI assistant you talk to — works exactly the same. SSD mode only changes where files are stored, not how Hermes behaves.
+
+---
+
+## Hardware
+
+This project was built and tested on the following setup.
+
+| Component | Details |
+|-----------|---------|
+| Computer | MacBook Air (model Mac14,2) |
+| Processor | Apple M2 chip (Apple Silicon — Apple's own processor design, fast and power-efficient) |
+| Memory | 8 GB unified memory (RAM shared between the processor and graphics) |
+| Internal storage | 256 GB SSD |
+| External drive | SanDisk Extreme Portable SSD, 2 TB capacity |
+| Connection | USB |
+| Drive format | ExFAT (a file system that works on both Mac and Windows) |
+
+**Why this hardware?**
+
+The MacBook Air M2 with 8 GB is a capable everyday machine, but it is not designed to hold multi-gigabyte AI models and large development caches. A 2 TB portable SSD adds affordable, fast storage without upgrading the laptop. USB keeps setup simple — plug in and go. The SanDisk Extreme line offers high read/write speeds, which matters when loading large model files from the drive.
+
+---
+
+## How It Works
+
+Here is the full workflow, step by step.
+
+### 1. Plug in the SSD
+
+Connect your registered external drive. macOS mounts it (makes it visible) at a path like `/Volumes/Extreme SSD`.
+
+### 2. Run SSD mode
+
+Open Terminal and type:
 
 ```bash
 hermes ssd
 ```
 
-## What SSD mode changes
+That is the only command you need for daily use. (Normal Hermes without SSD routing is just `hermes`.)
 
-- Routes `HERMES_HOME`, caches, models, temp files, logs, sessions, and build artifacts to `<SSD>/Hermes-SSD-LLM/`
-- Validates the registered SSD on every launch (UUID, external, writable, free space)
-- Refuses to continue if the SSD is missing, wrong, read-only, or full
+### 3. Hermes SSD LLM runs safety checks
 
-## What SSD mode does not change
+Before launching Hermes, the program verifies everything is ready:
 
-- Hermes TUI, keyboard shortcuts, provider selection, skills, or tools
-- Credentials (stay in Keychain / normal secure locations)
-- Remote inference (Cursor, OpenAI, etc. still run remotely)
+| Check | What it means |
+|-------|---------------|
+| Correct SSD connected? | Matches the drive you registered during installation (by unique ID) |
+| Enough free space? | At least 100 GB free by default |
+| Drive healthy? | Can read and write a test file |
+| Drive mounted? | macOS sees the volume |
+| Required folders present? | Creates the folder layout if missing |
+| Drive writable? | Not read-only or locked |
+| External drive? | Refuses to use internal storage as a substitute |
 
-## Memory and storage (honest)
+If any check fails, Hermes does **not** launch. There is no silent fallback to your MacBook's internal drive. This protects you from accidentally filling internal storage or running with a missing drive.
 
-- Active computation, Metal, Hermes, OS, and loaded model layers still use **unified memory**
-- SSD mode reduces **internal-drive** use and memory **pressure** for large local models
-- A model that fits entirely in RAM may be faster than SSD streaming
-- Remote providers do not run model weights on your SSD — only local state is SSD-backed
+### 4. Configuration is seeded (first time only)
 
-## Tested hardware (detected system — 2026-07-30)
+On first launch, essential Hermes settings are copied from your Mac's normal Hermes folder (`~/.hermes`) to the SSD — things like `config.yaml` and your engineering standards file. Existing files on the SSD are never overwritten.
 
-| Field | Value |
-|-------|-------|
-| Mac model | MacBook Air (Mac14,2) |
-| Chip | Apple M2 |
-| Unified memory | 8.0 GiB |
-| Internal storage available | 16.0 GiB of 228.3 GiB |
-| macOS | 26.2 |
-| External SSD manufacturer | SanDisk |
-| External SSD model (macOS report) | Extreme SSD (volume name) |
-| SSD capacity | 1863 GB formatted |
-| SSD available | 1834 GB |
-| SSD filesystem | ExFAT |
-| SSD connection | USB |
-| Hermes version | v0.19.0 |
-| Hermes SSD LLM | 0.3.0 |
-| Rust | 1.97.1 |
+### 5. Storage paths are redirected
 
-> These results apply to the detected test Mac only. Re-run `./scripts/capture-test-system.sh` on your machine.
+Environment variables (settings that tell programs where to save files) point all heavy data to the SSD. Hermes, caches, temporary files, and build artifacts all land on the external drive.
+
+### 6. Hermes launches
+
+The real Hermes Agent starts with your usual interface, skills, and tools. You use it normally.
+
+### Other useful commands
+
+```bash
+hermes ssd doctor          # Run all checks and show a health report
+hermes ssd reset --dry-run # Preview what a cleanup would remove
+hermes ssd reset           # Clean temporary/runtime files on the SSD
+```
+
+---
+
+## What Lives On The SSD
+
+Everything below is stored under `<SSD>/Hermes-SSD-LLM/`.
+
+| Item | What it is |
+|------|------------|
+| **Projects** | Your code repositories and workspaces |
+| **Models** | AI model files (GGUF format — compressed files that contain an AI brain) |
+| **Logs** | Records of what Hermes and tools did, useful for debugging |
+| **Caches** | Downloaded files kept for speed so they are not re-downloaded |
+| **Databases** | Structured data Hermes uses to remember sessions and settings |
+| **Embeddings** | Numerical representations of text used for search and memory |
+| **Indexes** | Fast lookup tables built from your data |
+| **Configuration** | Runtime settings for the SSD environment |
+| **Temporary files** | Short-lived files created during work, cleaned up automatically |
+| **Vector databases** | Specialized storage for AI similarity search |
+| **Memory** | Hermes session memory and conversation history |
+| **Backups** | Copies of important data for recovery |
+| **Git repositories** | Version-controlled project folders |
+| **Benchmarks** | Performance test results for this setup |
+
+Your passwords and API keys stay in macOS Keychain on the MacBook — they are **not** copied to the SSD.
+
+---
+
+## Why Rust?
+
+**Rust** is a programming language. It was chosen because it is extremely fast, reliable, and uses very little memory compared to many other languages.
+
+For Hermes SSD LLM specifically:
+
+- **Memory efficiency** matters on an 8 GB Mac. Rust gives precise control over how much RAM the launcher and inference engine use.
+- **Reliability** matters when handling large files and GPU work. Rust catches many bugs at compile time instead of at runtime.
+- **Performance** matters when streaming multi-gigabyte model layers from an SSD. Rust compiles to native machine code with no garbage-collection pauses.
+- **Safety** matters for a tool that validates drives, manages locks, and launches other programs. Rust's ownership system prevents common crashes and data races.
+
+---
+
+## Why A Portable SSD?
+
+| Benefit | Explanation |
+|---------|-------------|
+| **Portable** | Carry your entire AI environment in your pocket |
+| **Replaceable** | Upgrade to a larger or faster drive without buying a new laptop |
+| **Expandable** | 2 TB costs far less than upgrading MacBook storage |
+| **Easy backups** | Copy one folder or clone the whole drive |
+| **Easy migration** | Plug into a new Mac, run `hermes ssd`, done |
+| **Protects internal SSD** | Your MacBook's built-in storage stays free for macOS and personal files |
+| **Clean separation** | AI data and personal data never mix on the internal drive |
+
+---
 
 ## Installation
 
@@ -85,140 +168,68 @@ cd hermes-ssd-llm
 hermes ssd doctor
 ```
 
-## First launch
+Requirements: macOS, an existing Hermes Agent installation, and Rust (installed automatically by the script if missing).
 
-```bash
-hermes ssd
-```
+---
 
-Creates required directories on the SSD automatically.
+## Frequently Asked Questions
 
-## Reset to first-run state
+**Why not store everything on my MacBook?**
 
-Preview:
+AI models alone can be 4–70+ GB each. Caches, logs, and build artifacts add more. On a 256 GB MacBook, that space runs out fast and slows the whole system down.
 
-```bash
-hermes ssd reset --dry-run
-```
+**Will this make my MacBook faster?**
 
-Clean runtime state (preserves models and config):
+It frees internal storage and reduces memory pressure from large local models. Your MacBook will feel less cramped. Actual AI response speed depends on whether you use remote providers (cloud) or local models (on your machine).
 
-```bash
-hermes ssd reset
-```
+**Can I unplug the SSD?**
 
-Also remove models:
+Not while Hermes is running. Unplugging during active work will cause errors. Quit Hermes first, then eject the drive safely.
 
-```bash
-hermes ssd reset --include-models
-```
+**Can I move to another Mac?**
 
-Full project-managed data reset:
+Yes. Install Hermes SSD LLM on the new Mac, plug in the same SSD, and run `hermes ssd`. Your data and configuration travel with the drive.
 
-```bash
-hermes ssd reset --all-managed-data
-```
+**Can I upgrade the SSD later?**
 
-## Doctor
+Yes. Copy the `Hermes-SSD-LLM` folder to a new drive, re-run `./install.sh` to register the new volume, and you are set.
 
-```bash
-hermes ssd doctor
-hermes ssd doctor --throughput
-```
+**Does SSD mode change how Hermes looks or works?**
 
-## SSD directory layout
+No. Same terminal interface, same skills, same tools. Only file locations change.
 
-```text
-<SSD>/Hermes-SSD-LLM/
-├── models/gguf/
-├── cache/
-├── data/hermes/      ← HERMES_HOME
-├── tmp/              ← TMPDIR
-├── logs/
-├── runtime/
-├── repositories/
-└── workspaces/
-```
+**What if the wrong SSD is plugged in?**
 
-## Local-model behavior
+Hermes refuses to start and shows a clear error. It will never silently use internal storage.
 
-When a GGUF model is configured and the local runtime is used, the Rust engine streams layers from SSD with prefetch and LRU caching. See `hermes-ssd-llm bench` and `BENCHMARKS.md`.
+---
 
-## Remote-provider behavior
+## Future Roadmap
 
-SSD mode still routes Hermes data and caches to the SSD. Model inference runs on the remote provider.
+- Deeper integration between SSD mode and local model inference
+- APFS support optimizations for macOS-native drives
+- Automated backup workflows
+- GUI status indicator for SSD health
+- Multi-SSD profiles for different project contexts
 
-## Benchmarks
+---
 
-```bash
-./benchmarks/scripts/generate-report.sh
-```
+## More Documentation
 
-See `BENCHMARKS.md` for measured results on the test system.
+| Document | Audience |
+|----------|----------|
+| [TECHNICAL.md](TECHNICAL.md) | Senior engineers — architecture, boot sequence, ADRs |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Living system overview with diagrams |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Contributors — code style, testing, PR guidelines |
+| [BENCHMARKS.md](BENCHMARKS.md) | Measured performance on the test system |
+| [SECURITY.md](SECURITY.md) | Security model and path safety |
 
-## Architecture
-
-```mermaid
-flowchart TD
-  User --> Dispatcher["hermes (Rust dispatcher)"]
-  Dispatcher -->|hermes| RealHermes[Real Hermes executable]
-  Dispatcher -->|hermes ssd| Validate[SSD validation]
-  Validate --> Env[Environment routing]
-  Env --> RealHermes
-  Validate --> Inference[Optional local GGUF runtime]
-```
-
-## Configuration
-
-`~/.config/hermes-ssd-llm/config.toml` — volume UUID, thresholds, Hermes executable path.
-
-## Safety
-
-- No silent fallback to internal storage when SSD mode is requested
-- Reset refuses paths outside managed SSD directories
-- Doctor redacts secrets from output
-
-## Documentation
-
-| File | Purpose |
-|------|---------|
-| `CONSTITUTION.md` | Engineering constitution (absolute authority) |
-| `AGENTS.md` | AI agent and contributor instructions |
-| `ARCHITECTURE.md` | System design and module map |
-| `SECURITY.md` | Security model and path safety |
-| `CONTRIBUTING.md` | Contribution workflow and quality gates |
-| `BENCHMARKS.md` | Measured benchmark results only |
-| `MIGRATION.md` | Naming history and reset guide |
-
-## Development (Rust)
-
-```bash
-cargo fmt --check
-cargo test --lib --tests
-cargo build --release
-```
-
-```text
-src/
-  bin/hermes.rs           # Dispatcher
-  bin/hermes_ssd_llm.rs   # Doctor, register, inference CLI
-  reset/                  # Safe first-run reset
-  device/                 # Volume discovery
-  environment/            # Path routing
-  ssd/, metal/, inference/  # Local inference engine
-```
-
-## Known limitations
-
-- Cannot survive SSD unplug mid-session (fails closed)
-- ExFAT lacks some macOS-native features vs APFS
-- 8 GB unified memory limits local model size even with SSD streaming
-- Doctests in inference modules may fail (cosmetic)
+---
 
 ## License
 
-MIT — Copyright (c) 2026 Maxi Guillermo. See `LICENSE`.
+MIT License
 
-## Upstream
+Copyright (c) 2026 Maxi Guillermo
 
-Local inference engine derived from the open-source [ssd-llm](https://github.com/redbasecap-buiss/ssd-llm) project. See `NOTICE` if present.
+See [LICENSE](LICENSE) for the full text.

@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.3.2 — Documentation rewrite (2026-07-30)
+
+### Added
+
+- **`TECHNICAL.md`** — comprehensive technical reference for senior engineers (architecture, boot sequence, ADRs, threat model, benchmark methodology)
+
+### Changed
+
+- **`README.md`** — complete rewrite in plain English for non-technical readers
+- **`ARCHITECTURE.md`** — living component map with diagrams and change log
+- **`CONTRIBUTING.md`** — expanded engineering standards, PR guidelines, and constitution references
+
+---
+
 ## v0.3.1 — Engineering Constitution governance (2026-07-30)
 
 ### Added

@@ -1,128 +1,231 @@
-# Architecture — Hermes SSD LLM
+# ARCHITECTURE.md — Hermes SSD LLM
 
-Rust 2021 crate (`hermes-ssd-llm`) with two binaries and a preserved SSD-streaming inference engine.
+Living high-level architecture reference. Update this document when components, boundaries, or data flows change.
 
-## System diagram
+For plain-language overview: [README.md](README.md)  
+For deep technical detail and ADRs: [TECHNICAL.md](TECHNICAL.md)
 
-```mermaid
-flowchart TD
-  User["User"]
-  Dispatcher["hermes binary (dispatcher)"]
-  RealHermes["hermes.real (upstream Hermes Agent)"]
-  SSDCmd["hermes ssd subcommands"]
-  Validate["device::verify_volume"]
-  Paths["paths::SsdPaths + ensure_ssd_layout"]
-  Lock["locks::SessionLock"]
-  Env["environment::RoutedEnvironment"]
-  Inference["inference/ + metal/ + ssd/ (optional local GGUF)"]
+**Last reviewed:** 2026-07-30 · v0.3.1
 
-  User --> Dispatcher
-  Dispatcher -->|"no ssd arg"| RealHermes
-  Dispatcher --> SSDCmd
-  SSDCmd -->|"doctor / reset"| Diagnostics["diagnostics / reset"]
-  SSDCmd -->|"default"| Validate
-  Validate --> Paths
-  Paths --> Lock
-  Lock --> Env
-  Env --> RealHermes
-  Env -.->|"local model path"| Inference
+---
+
+## Purpose
+
+Hermes SSD LLM is a macOS storage routing layer and optional local inference runtime for [Hermes Agent](https://hermes-agent.nousresearch.com/). It validates a registered external SSD, redirects data paths, and launches upstream Hermes unchanged.
+
+---
+
+## Component Map
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                           Hermes SSD LLM                                │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  ┌─────────────┐   ┌─────────────┐   ┌─────────────┐   ┌───────────┐ │
+│  │   hermes    │   │    cli      │   │   device    │   │   paths   │ │
+│  │ (dispatcher)│──▶│  (routing)  │──▶│ (discovery/ │──▶│ (layout)  │ │
+│  │             │   │             │   │  verify)    │   │           │ │
+│  └─────────────┘   └─────────────┘   └─────────────┘   └───────────┘ │
+│         │                                    │                │       │
+│         │              ┌─────────────┐       │                │       │
+│         │              │  bootstrap  │◀──────┴────────────────┘       │
+│         │              │ (seed home) │                                │
+│         │              └─────────────┘                                 │
+│         │                    │                                         │
+│         │    ┌───────────────┼───────────────┐                        │
+│         │    ▼               ▼               ▼                        │
+│         │ ┌──────┐    ┌────────────┐   ┌──────────┐                  │
+│         │ │locks │    │environment │   │ launcher │                  │
+│         │ │(PID) │    │ (env vars) │   │ (exec)   │                  │
+│         │ └──────┘    └────────────┘   └────┬─────┘                  │
+│         │                                    │                        │
+│         │                                    ▼                        │
+│         │                           ┌─────────────┐                  │
+│         │                           │ hermes.real │                  │
+│         │                           │  (upstream) │                  │
+│         │                           └─────────────┘                  │
+│         │                                                             │
+│  ┌──────┴──────────────────────────────────────────────────────┐     │
+│  │              hermes-ssd-llm (inference CLI)                  │     │
+│  │  ┌────────┐  ┌────────┐  ┌────────┐  ┌────────┐  ┌───────┐ │     │
+│  │  │ model  │─▶│  ssd   │─▶│ metal  │─▶│inference│─▶│  api  │ │     │
+│  │  │ (GGUF) │  │ (mmap) │  │ (GPU)  │  │(engine) │  │(HTTP) │ │     │
+│  │  └────────┘  └────────┘  └────────┘  └────────┘  └───────┘ │     │
+│  └───────────────────────────────────────────────────────────────┘     │
+│                                                                         │
+│  ┌─────────────┐   ┌─────────────┐   ┌─────────────┐                  │
+│  │   config    │   │    reset    │   │ diagnostics │                  │
+│  │ (TOML I/O)  │   │ (safe wipe) │   │  (doctor)   │                  │
+│  └─────────────┘   └─────────────┘   └─────────────┘                  │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
 ```
 
-## Modes
+---
 
-### Mode A — SSD-backed Hermes storage (always)
+## Components and Responsibilities
 
-When `hermes ssd` succeeds validation, child processes receive redirected paths:
+| Component | Module | Responsibility |
+|-----------|--------|----------------|
+| **Dispatcher** | `bin/hermes.rs` | Route `hermes` vs `hermes ssd`; no recursive wrapping |
+| **CLI** | `cli/` | Subcommand handling: launch, doctor, reset, help |
+| **Config** | `config/` | Load/save/validate/migrate `config.toml` |
+| **Device** | `device/` | Discover volumes via `diskutil`; verify UUID, space, RW |
+| **Paths** | `paths/` | SSD directory constants; `ensure_ssd_layout()` |
+| **Bootstrap** | `bootstrap.rs` | Seed SSD `HERMES_HOME` from `~/.hermes` on first launch |
+| **Environment** | `environment/` | Build `RoutedEnvironment` env var map |
+| **Launcher** | `launcher/` | Resolve `hermes.real`; `exec()` with routed env |
+| **Locks** | `locks/` | PID session lock; unclean shutdown detection |
+| **Reset** | `reset/` | Scoped cleanup with path safety validation |
+| **Diagnostics** | `diagnostics/` | Doctor report generation and printing |
+| **Model** | `model/` | GGUF parsing, layer metadata, LRU cache |
+| **SSD** | `ssd/` | mmap pool, prefetch, block swap, memory pressure |
+| **Metal** | `metal/` | GPU compute kernels (matmul, attention, RoPE) |
+| **Inference** | `inference/` | Transformer forward pass, KV cache, sampling |
+| **API** | `api/` | OpenAI/Ollama-compatible HTTP server |
+| **Errors** | `errors/` | Typed errors with exit codes |
 
-| Variable | SSD location |
-|----------|----------------|
-| `HERMES_HOME` | `<SSD>/Hermes-SSD-LLM/data/hermes` |
-| `TMPDIR` | `<SSD>/Hermes-SSD-LLM/tmp` |
-| `HF_HOME` | `<SSD>/Hermes-SSD-LLM/cache/huggingface` |
-| `CARGO_TARGET_DIR` | `<SSD>/Hermes-SSD-LLM/cache/rust` |
-| models | `<SSD>/Hermes-SSD-LLM/models/gguf` |
-| logs | `<SSD>/Hermes-SSD-LLM/logs` |
+---
 
-Credentials remain in Keychain and normal secure macOS locations.
+## Operating Modes
 
-### Mode B — SSD-backed local inference (optional)
+### Mode A — SSD-backed storage (primary)
 
-When a compatible GGUF model is configured and the local runtime is invoked (`hermes-ssd-llm` CLI or future Hermes integration):
+Triggered by: `hermes ssd`
 
-- Layers are memory-mapped from SSD
-- 1–2 active layers in unified memory
-- Prefetch of next layer during GPU compute
-- LRU cache for hot layers
-- KV block swap to SSD under memory pressure
-- Metal kernels for matmul, attention, RoPE, dequant
+All Hermes data, caches, temp files, and build artifacts route to the external SSD. Upstream Hermes runs unchanged.
 
-Unified memory is still required for active compute, Metal resources, and loaded layers.
+### Mode B — Normal passthrough
 
-### Mode C — Remote provider
+Triggered by: `hermes` (no `ssd` argument)
 
-Cursor, OpenAI, Anthropic, etc. run inference remotely. SSD mode still routes Hermes data, caches, sessions, and workspaces to the external drive.
+No validation. No env mutation. Direct exec to `hermes.real`.
 
-## Command dispatch
+### Mode C — Local inference (optional)
 
-`src/bin/hermes.rs`:
+Triggered by: `hermes-ssd-llm` CLI (bench, serve)
 
-1. If first arg is `ssd` → `cli::handle_ssd_subcommand`
-2. Else → resolve `hermes.real` and `exec` passthrough with original args
+GGUF models streamed from SSD with Metal GPU acceleration. Not yet auto-launched by `hermes ssd`.
 
-No recursive wrapper invocation. Install script places the Rust binary at `~/.local/bin/hermes` and preserves upstream at `~/.local/bin/hermes.real`.
+### Mode D — Remote provider
 
-## SSD identification
+Hermes configured with Cursor, OpenAI, etc. SSD mode still routes local state; inference runs remotely.
 
-Registration stores `volume_uuid` in `~/.config/hermes-ssd-llm/config.toml`.
+---
 
-At launch, `device::verify_volume`:
+## Data Flow
 
-1. Locates mount by UUID via `diskutil`
-2. Confirms external, writable, supported filesystem
-3. Checks free space thresholds
-4. Refuses if identity mismatch or `allow_internal_fallback` is true
+### Launch flow
 
-## Concurrency and drive removal
+```mermaid
+flowchart LR
+    A[config.toml] -->|volume_uuid| B[diskutil]
+    B -->|mount_point| C[SsdPaths]
+    C --> D[bootstrap]
+    D --> E[SessionLock]
+    E --> F[RoutedEnvironment]
+    F -->|HERMES_HOME, TMPDIR, ...| G[hermes.real]
+```
 
-- `SessionLock` prevents overlapping SSD-mode sessions
-- Unclean shutdown flagged in runtime state
-- Failed I/O on SSD → fatal error, no internal fallback
-- Cannot survive physical unplug mid-session
+### Inference flow
 
-## Configuration
+```mermaid
+flowchart LR
+    A[GGUF on SSD] -->|mmap| B[Layer N]
+    B -->|prefetch| C[Layer N+1]
+    B -->|Metal| D[GPU Compute]
+    D --> E[KV Cache]
+    E -->|pressure| F[SSD Block Swap]
+    D --> G[Sampler]
+    G -->|token| H[Output]
+```
 
-| File | Purpose |
-|------|---------|
-| `~/.config/hermes-ssd-llm/config.toml` | SSD registration, thresholds, Hermes path |
-| `<SSD>/Hermes-SSD-LLM/config/runtime.toml` | Runtime tuning (optional) |
+---
 
-Schema version migrations in `config/migration.rs`.
+## Storage Boundaries
 
-## Testing strategy
+```
+┌──────────────── MacBook (internal) ─────────────────┐
+│  ~/.config/hermes-ssd-llm/config.toml  (0600)    │
+│  ~/.local/bin/hermes          (Rust dispatcher)   │
+│  ~/.local/bin/hermes.real     (upstream Hermes)   │
+│  Keychain / credentials                           │
+└───────────────────────────────────────────────────┘
+                        │
+                        │ USB
+                        ▼
+┌──────────────── External SSD ─────────────────────┐
+│  /Volumes/<name>/Hermes-SSD-LLM/                  │
+│    data/hermes/     ← HERMES_HOME                 │
+│    models/gguf/     ← AI models                   │
+│    cache/           ← HF, Rust, Hermes caches     │
+│    tmp/             ← TMPDIR                      │
+│    logs/            ← Application logs            │
+│    runtime/         ← Locks, sessions, state      │
+│    repositories/    ← Git clones                  │
+│    workspaces/      ← Active projects             │
+└───────────────────────────────────────────────────┘
+```
 
-| Layer | Location |
-|-------|----------|
-| Unit | `src/**/mod.rs` `#[cfg(test)]` |
-| CLI routing | `tests/cli_routing.rs` |
-| Integration | `tests/integration.rs`, `tests/integration_paths.rs` |
-| Reset safety | `tests/reset_safety.rs` |
-| Benchmarks | `benchmarks/scripts/*.sh` (measured, not estimated) |
+---
 
-## Module responsibilities
+## Key Invariants
 
-| Module | Responsibility |
-|--------|----------------|
-| `cli` | Subcommand routing, launch orchestration |
-| `config` | Load/save/migrate TOML |
-| `device` | Volume discovery and verification |
-| `environment` | Build env map for child processes |
-| `launcher` | Resolve and exec real Hermes |
-| `locks` | PID lock, stale detection |
-| `paths` | Directory layout constants and creation |
-| `reset` | Scoped cleanup with path validation |
-| `diagnostics` | Doctor report generation |
-| `ssd` | mmap pool, prefetch, block swap, memory pressure |
-| `model` | GGUF parsing and layer cache |
-| `metal` | GPU compute shaders |
-| `inference` | Transformer forward pass, KV cache, sampling |
-| `api` | Ollama/OpenAI-compatible HTTP server |
+1. `allow_internal_fallback` is always `false` and rejected if set `true`
+2. SSD validation runs before every `hermes ssd` launch
+3. Reset only operates on paths under `<SSD>/Hermes-SSD-LLM/`
+4. Credentials never redirect to SSD
+5. One active SSD session per volume (PID lock)
+6. `hermes` passthrough never modifies environment
+
+---
+
+## External Dependencies
+
+| Dependency | Role |
+|------------|------|
+| Hermes Agent | Upstream AI assistant (Python) |
+| macOS `diskutil` | Volume discovery |
+| macOS `df` | Free space check |
+| Metal framework | GPU inference (Apple Silicon) |
+| Rust toolchain | Build and runtime |
+
+---
+
+## Test Coverage Map
+
+| Area | Test Location |
+|------|---------------|
+| Config validation | `config/hermes_ssd_llm_config.rs` |
+| Path layout | `paths/mod.rs`, `tests/integration_paths.rs` |
+| Env routing | `environment/mod.rs` |
+| Lock stale detection | `locks/mod.rs` |
+| Reset path safety | `reset/mod.rs`, `tests/reset_safety.rs` |
+| CLI dispatch | `tests/cli_routing.rs` |
+| Bootstrap | `bootstrap.rs` |
+
+---
+
+## Change Log
+
+| Date | Change |
+|------|--------|
+| 2026-07-30 | Added `bootstrap.rs` for SSD home seeding |
+| 2026-07-30 | Documentation rewrite (README, TECHNICAL, ARCHITECTURE, CONTRIBUTING) |
+| 2026-07-30 | Benchmarks refreshed on MacBook Air M2 + SanDisk Extreme 2TB |
+
+---
+
+## When to Update This Document
+
+Update ARCHITECTURE.md when you:
+
+- Add or remove a module
+- Change data flow or storage boundaries
+- Add a new operating mode
+- Change external dependencies
+- Modify the SSD directory layout
+- Change validation or lock behavior
+
+Do **not** duplicate ADR rationale here — link to [TECHNICAL.md](TECHNICAL.md#architecture-decision-records).
