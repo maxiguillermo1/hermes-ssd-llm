@@ -1,5 +1,9 @@
 /target
 Cargo.lock
+
+# macOS metadata (common on ExFAT/external volumes)
+._*
+.DS_Store
 *.gguf
 *.bin
 .DS_Store

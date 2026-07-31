@@ -2,6 +2,8 @@
 
 Read `CONSTITUTION.md` first. It is the absolute engineering authority for this repository and workstation.
 
+Then read `.hermes/README.md` and the policy files it indexes. Repository standards live in `.hermes/` (not agent memory) so documentation and engineering behavior are reproducible across sessions.
+
 ## Immutable user workflow
 
 ```text
@@ -62,12 +64,17 @@ Run ShellCheck on `install.sh`, `uninstall.sh`, and `scripts/*.sh`, `benchmarks/
 
 ## Documentation
 
-Keep in sync with code:
+Follow `.hermes/DOCUMENTATION_STANDARD.md` for structure and quality. Keep in sync with code:
 
-- `README.md` — user-facing workflow and commands
+- `README.md` — beginner-facing (plain English, explain all jargon)
+- `TECHNICAL.md` — senior-engineer reference (architecture, ADRs, diagrams)
+- `ARCHITECTURE.md` — living component map (update when boundaries change)
+- `CONTRIBUTING.md` — contributor workflow and quality gates
 - `BENCHMARKS.md` — measured results only (no estimates)
 - `CHANGELOG.md` — every release
 - `MIGRATION.md` — naming and reset history
+
+To bootstrap these standards into another repository: `./scripts/bootstrap-hermes-standards.sh /path/to/repo`
 
 ## Upstream
 

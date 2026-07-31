@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.3.3 — Documentation standardization initiative (2026-07-30)
+
+### Added
+
+- **`.hermes/`** — persistent repository policies (engineering constitution pointer, documentation standard, project standards, architecture principles)
+- **`.hermes/templates/`** — README and TECHNICAL starter templates
+- **`scripts/bootstrap-hermes-standards.sh`** — install `.hermes/` standards into any Git repository
+
+### Changed
+
+- **`AGENTS.md`** — agents must read `.hermes/` policies; expanded documentation requirements
+- **`CONTRIBUTING.md`** — references `.hermes/` and bootstrap script
+- **`.gitignore`** — ignore macOS `._*` metadata files on ExFAT volumes
+
+---
+
 ## v0.3.2 — Documentation rewrite (2026-07-30)
 
 ### Added

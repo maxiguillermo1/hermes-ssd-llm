@@ -11,6 +11,8 @@ For deep technical reference, see [TECHNICAL.md](TECHNICAL.md).
 
 All work on this repository is governed by **[CONSTITUTION.md](CONSTITUTION.md)** (Hermes SSD LLM Engineering Constitution v1.0). This is the highest-priority standard.
 
+Persistent engineering and documentation policies live in **[`.hermes/`](.hermes/README.md)** — they travel with the repository so any contributor or agent gets consistent guidance without relying on session memory.
+
 Before writing code:
 
 1. Understand the real problem — not just the symptom
@@ -19,9 +21,15 @@ Before writing code:
 4. Implement progressively: correct first, optimize later
 5. Self-review before submitting: races, leaks, API consistency, maintenance cost
 
-AI agents working on this repo must also read **[AGENTS.md](AGENTS.md)**.
+AI agents working on this repo must also read **[AGENTS.md](AGENTS.md)** and **[`.hermes/DOCUMENTATION_STANDARD.md`](.hermes/DOCUMENTATION_STANDARD.md)**.
 
 The user's personal engineering constitution (`ENGINEERING-CONSTITUTION.md`) is bootstrapped to the SSD Hermes home and applies to all Hermes sessions.
+
+To apply this documentation standard to another repository:
+
+```bash
+./scripts/bootstrap-hermes-standards.sh /path/to/repo
+```
 
 ---
 
